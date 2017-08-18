@@ -52,6 +52,7 @@
             this.rotleft = new System.Windows.Forms.Button();
             this.rotright = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.PathRight = new System.Windows.Forms.TextBox();
             this.PathLeft = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
@@ -63,6 +64,7 @@
             this.window_max = new System.Windows.Forms.TextBox();
             this.window_min = new System.Windows.Forms.TextBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.wpOffset = new System.Windows.Forms.TextBox();
@@ -98,8 +100,7 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.masks = new System.Windows.Forms.CheckedListBox();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
-            this.checkBox2 = new System.Windows.Forms.CheckBox();
+            this.dИзображениеToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.Tabs.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -166,7 +167,8 @@
             // 
             this.файлToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.открытьToolStripMenuItem,
-            this.сохранитьToolStripMenuItem});
+            this.сохранитьToolStripMenuItem,
+            this.dИзображениеToolStripMenuItem});
             this.файлToolStripMenuItem.Name = "файлToolStripMenuItem";
             this.файлToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.файлToolStripMenuItem.Text = "Файл";
@@ -177,20 +179,20 @@
             this.левыйToolStripMenuItem,
             this.правыйToolStripMenuItem});
             this.открытьToolStripMenuItem.Name = "открытьToolStripMenuItem";
-            this.открытьToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.открытьToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
             this.открытьToolStripMenuItem.Text = "Открыть";
             // 
             // левыйToolStripMenuItem
             // 
             this.левыйToolStripMenuItem.Name = "левыйToolStripMenuItem";
-            this.левыйToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
+            this.левыйToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.левыйToolStripMenuItem.Text = "Левый";
             this.левыйToolStripMenuItem.Click += new System.EventHandler(this.левыйToolStripMenuItem_Click);
             // 
             // правыйToolStripMenuItem
             // 
             this.правыйToolStripMenuItem.Name = "правыйToolStripMenuItem";
-            this.правыйToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
+            this.правыйToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.правыйToolStripMenuItem.Text = "Правый";
             this.правыйToolStripMenuItem.Click += new System.EventHandler(this.правыйToolStripMenuItem_Click);
             // 
@@ -199,13 +201,13 @@
             this.сохранитьToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.статистикаToolStripMenuItem});
             this.сохранитьToolStripMenuItem.Name = "сохранитьToolStripMenuItem";
-            this.сохранитьToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.сохранитьToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
             this.сохранитьToolStripMenuItem.Text = "Сохранить";
             // 
             // статистикаToolStripMenuItem
             // 
             this.статистикаToolStripMenuItem.Name = "статистикаToolStripMenuItem";
-            this.статистикаToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.статистикаToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.статистикаToolStripMenuItem.Text = "Статистика";
             this.статистикаToolStripMenuItem.Click += new System.EventHandler(this.статистикаToolStripMenuItem_Click);
             // 
@@ -354,6 +356,13 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Файлы";
             // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(9, 89);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(617, 23);
+            this.progressBar1.TabIndex = 4;
+            // 
             // PathRight
             // 
             this.PathRight.Location = new System.Drawing.Point(59, 48);
@@ -467,6 +476,18 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Маски";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // checkBox2
+            // 
+            this.checkBox2.AutoSize = true;
+            this.checkBox2.Checked = true;
+            this.checkBox2.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox2.Location = new System.Drawing.Point(6, 99);
+            this.checkBox2.Name = "checkBox2";
+            this.checkBox2.Size = new System.Drawing.Size(172, 17);
+            this.checkBox2.TabIndex = 12;
+            this.checkBox2.Text = "Синхронное редактирование";
+            this.checkBox2.UseVisualStyleBackColor = true;
             // 
             // button3
             // 
@@ -848,24 +869,12 @@
             this.masks.TabIndex = 15;
             this.masks.SelectedIndexChanged += new System.EventHandler(this.masks_SelectedIndexChanged_1);
             // 
-            // progressBar1
+            // dИзображениеToolStripMenuItem
             // 
-            this.progressBar1.Location = new System.Drawing.Point(9, 89);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(617, 23);
-            this.progressBar1.TabIndex = 4;
-            // 
-            // checkBox2
-            // 
-            this.checkBox2.AutoSize = true;
-            this.checkBox2.Checked = true;
-            this.checkBox2.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox2.Location = new System.Drawing.Point(6, 99);
-            this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(172, 17);
-            this.checkBox2.TabIndex = 12;
-            this.checkBox2.Text = "Синхронное редактирование";
-            this.checkBox2.UseVisualStyleBackColor = true;
+            this.dИзображениеToolStripMenuItem.Name = "dИзображениеToolStripMenuItem";
+            this.dИзображениеToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
+            this.dИзображениеToolStripMenuItem.Text = "3D изображение";
+            this.dИзображениеToolStripMenuItem.Click += new System.EventHandler(this.dИзображениеToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -982,6 +991,7 @@
         private System.Windows.Forms.Button bmirror;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.CheckBox checkBox2;
+        private System.Windows.Forms.ToolStripMenuItem dИзображениеToolStripMenuItem;
     }
 }
 

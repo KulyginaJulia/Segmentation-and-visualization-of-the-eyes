@@ -99,7 +99,7 @@ class Volume
         shaderObj = GL.CreateShader(type);
         GL.ShaderSource(shaderObj, File.ReadAllText(shaderSource));
         GL.CompileShader(shaderObj);
-        GL.GetShader(shaderObj, ShaderParameter.CompileStatus, out int statusCode);
+       // GL.GetShader(shaderObj, ShaderParameter.CompileStatus, out int statusCode);
     }
     private void InitShaderProgram()
     {
