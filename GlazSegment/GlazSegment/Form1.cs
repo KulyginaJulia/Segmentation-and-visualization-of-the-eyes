@@ -500,6 +500,12 @@ namespace GlazSegment
             rePaint();
         }
 
+        private void dИзображениеToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Form2 tempDialog = new Form2();
+            tempDialog.ShowDialog();
+        }
+
         private void masks_SelectedIndexChanged_1(object sender, EventArgs e)
         {
             mControl.ChangeMask(masks.SelectedIndex);
