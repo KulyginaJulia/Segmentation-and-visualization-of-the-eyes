@@ -142,7 +142,8 @@ namespace GlazSegment
         }
         void Application_Idle(object sender, EventArgs e)
         {
-            while (glControl1.IsIdle)
+            if (glControl1.Enabled == true)
+                while (glControl1.IsIdle)
             {
                 displayFPS();
                 glControl1.Invalidate();
@@ -151,7 +152,18 @@ namespace GlazSegment
 
         private void Form2_Load(object sender, EventArgs e)
         {
-            Application.Idle += Application_Idle;
+            if (Form2.ActiveForm != null)
+            {
+                Application.Idle += Application_Idle;
+                glControl1.Enabled = true;
+            }
+        }
+
+        private void Form2_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = true;
+            glControl1.Enabled = false;
+            Hide();
         }
     }
 }
