@@ -502,7 +502,7 @@ namespace GlazSegment
 
         private void dИзображениеToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form2 tempDialog = new Form2(this);
+            Form2 tempDialog = new Form2();
             tempDialog.ShowDialog();
         }
 
