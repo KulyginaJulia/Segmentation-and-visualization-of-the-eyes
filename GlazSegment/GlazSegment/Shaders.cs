@@ -13,7 +13,7 @@ using System.IO;
 
 namespace GlazSegment
 {
-    class Shaders
+    public class Shaders
     {
         public string glVersion;
         public string glslVersion;

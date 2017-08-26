@@ -20,18 +20,22 @@ namespace GlazSegment
 {
     public partial class Form2 : Form
     {
+        //**Data**//
 
-        public Form2()
-        {
-            InitializeComponent();
-            glControl1.Invalidate();
-        }
         public float[] array_frequency;
         public int[] result;
         public int index_difference;
         int FrameCount;
         public float Volume;
         DateTime NextFPSUpdate = DateTime.Now.AddSeconds(1);
+        public Shaders m; 
+        public float[] array2;
+        public int arraySize;
+        bool flag = false;
+        public string binaryData;
+
+        //**Functions**//
+
         void displayFPS()
         {
             if (DateTime.Now >= NextFPSUpdate)
@@ -42,12 +46,47 @@ namespace GlazSegment
             }
             FrameCount++;
         }
-        public float[] array2;
-        public int arraySize;
 
+        public void Draw()
+        {
+            Console.WriteLine(m.glslVersion);
+            Console.WriteLine(m.glVersion);
+            m.InitShaders();
+
+            GL.Viewport(0, 0, glControl1.Width, glControl1.Height);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.Enable(EnableCap.DepthTest);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture3D, m.texture);
+            GL.EnableVertexAttribArray(m.attribute_vpos);
+
+            Console.WriteLine("OK");
+
+            GL.DrawArrays(PrimitiveType.Quads, 0, 4);
+            Console.WriteLine("OK");
+
+            GL.DisableVertexAttribArray(m.attribute_vpos);
+            Console.WriteLine("OK");
+
+            GL.UseProgram(0);
+        }
+        
+        //**Calls in the form2**//
+        public Form2()
+        {
+            InitializeComponent();
+            glControl1.Invalidate();
+        }
 
         private void button_build_Click(object sender, EventArgs e)
         {
+            Volume = m.VX * m.VY * m.VZ;
+            Console.WriteLine(Volume);
+            array2 = new float[m.arraySize];
+            Array.Sort(m.array);
+            arraySize = m.arraySize;
+            Array.Copy(m.array, array2, arraySize);
+//
             calculate_frequency(array2, arraySize);
             chart1.Series.Clear();
             Series SeriesOfPoints_Fat = new Series("Fat");
@@ -101,45 +140,18 @@ namespace GlazSegment
                 }
             }
         }
-
+        
         private void glControl1_Paint(object sender, PaintEventArgs e)
         {
-            Shaders m = new Shaders();
-            //m.loadVolumeData("..//..//p1-before-left.bin");
-            //m.loadVolumeData("..//..//p1-before-right.bin");
-            //m.loadVolumeData("..//..//p2-before-left.bin");
-            m.loadVolumeData("..//..//p2-before-right.bin");
-            //m.loadVolumeData("..//..//testdata.bin");
-            Console.WriteLine(m.glslVersion);
-            Console.WriteLine(m.glVersion);
-            m.InitShaders();
-
-            GL.Viewport(0, 0, glControl1.Width, glControl1.Height);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.Enable(EnableCap.DepthTest);
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture3D, m.texture);
-            GL.EnableVertexAttribArray(m.attribute_vpos);
-
-            Console.WriteLine("OK");
-
-
-            GL.DrawArrays(PrimitiveType.Quads, 0, 4);
-            Console.WriteLine("OK");
-
-            GL.DisableVertexAttribArray(m.attribute_vpos);
-
-            glControl1.SwapBuffers();
-            Console.WriteLine("OK");
-
-            GL.UseProgram(0);
-            Volume = m.VX * m.VY * m.VZ;
-            Console.WriteLine(Volume);
-            array2 = new float[m.arraySize];
-            Array.Sort(m.array);
-            arraySize = m.arraySize;
-            Array.Copy(m.array, array2, arraySize);
+            if (flag == true)
+            {
+                m.loadVolumeData(binaryData);
+                Draw();
+                glControl1.MakeCurrent();
+                glControl1.SwapBuffers();
+            }
         }
+
         void Application_Idle(object sender, EventArgs e)
         {
             if (glControl1.Enabled == true)
@@ -164,6 +176,23 @@ namespace GlazSegment
             e.Cancel = true;
             glControl1.Enabled = false;
             Hide();
+        }
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "binary files| *.bin";
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                binaryData = dialog.FileName;
+                flag = true;
+            }
+        }
+
+        private void glControl1_Load(object sender, EventArgs e)
+        {
+            m = new Shaders();
+            this.DoubleBuffered = true;
         }
     }
 }
