@@ -3,26 +3,23 @@
 in vec3 			EntryPoint;
 uniform sampler3D   VolumeTex;
 uniform float       Z;
-uniform float		max_den;
-uniform float		min_den;
 
 out vec4 FragColor;
 
-vec4 TransferFunction(float density)
+vec4 TransferFunction(float intensity)
 {
-	float unnorm_den = (density * (max_den - min_den)) + min_den;
-	if ((unnorm_den >= -986.0) && ( unnorm_den < -600.0))
-		return vec4(1.0, 1.0, 0.0, density); // Fat
+	if ((intensity >= 0.41) && (intensity < 0.485))
+		return vec4(1.0, 1.0, 0.0, intensity); // Fat
 		
-	if ((unnorm_den >= 2.0) && (unnorm_den < 30.0))
-		return vec4(0.0, 0.0, 1.0, density); // Brain
+	if ((intensity >= 0.501) && (intensity < 0.515))
+		return vec4(0.0, 0.0, 1.0, intensity); // Brain
 		
-	if ((unnorm_den >= -400) && (unnorm_den < 0.0))
-		return vec4(1.0, 0.0, 0.0, density); // Blood
+	if ((intensity >= 0.515)&& (intensity <= 0.54))
+		return vec4(1.0, 0.0, 0.0, intensity); // Blood
 		
-	if ((unnorm_den >= 150.0) && (density < 1000))//)
-		return vec4(1.0, 1.0, 1.0, density); // Bones
-	return vec4(density);
+	if ((intensity >= 0.575)) //&& (intensity <= 1.0))// bones
+		return vec4(1.0, 1.0, 1.0, intensity);
+	return vec4(intensity);
 }
 
 void main()
@@ -34,15 +31,15 @@ void main()
     float deltaDirLen = 1.0/Z;
     vec3 voxelCoord = pos;
     vec4 colorAcum = vec4(0.0);
-    float density;
+    float intensity;
     float lengthAcum = 0.0;
     vec4 colorSample;
     vec4 bgColor = vec4(1.0, 1.0, 1.0, 1.0);
 	
     for(int i = 0; i < int(Z); i++)
     {
-    	density = texture3D(VolumeTex, voxelCoord).a;
-		colorSample = TransferFunction(density);
+    	intensity = texture3D(VolumeTex, voxelCoord).r;
+		colorSample = TransferFunction(intensity);
 		voxelCoord += deltaDir;
 	
     	if (colorSample.a > 0.0) {
@@ -51,7 +48,7 @@ void main()
     	}
 		
     	lengthAcum += deltaDirLen;
-    	if (lengthAcum == 1.0 )
+    	if (lengthAcum >= 1 )
     	{	
     	    colorAcum.rgb = colorAcum.rgb*colorAcum.a + (1 - colorAcum.a)*bgColor.rgb;		
     	    break;
@@ -63,5 +60,6 @@ void main()
     	}
 		
     }
+	vec4 invertColorAcum = vec4(1 - colorAcum);
 	FragColor = colorAcum;
 }

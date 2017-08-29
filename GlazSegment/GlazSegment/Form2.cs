@@ -22,8 +22,8 @@ namespace GlazSegment
     {
         //**Data**//
 
-        public float[] array_frequency;
-        public int[] result;
+        public float[] array_difference_data;
+        public int[] frequency;
         public int index_difference;
         int FrameCount;
         public float Volume;
@@ -33,6 +33,10 @@ namespace GlazSegment
         public int arraySize;
         bool flag = false;
         public string binaryData;
+
+        public double MathWait;
+        public double Dispers;
+        public double G;
 
         //**Functions**//
 
@@ -86,19 +90,13 @@ namespace GlazSegment
             Array.Sort(m.array);
             arraySize = m.arraySize;
             Array.Copy(m.array, array2, arraySize);
-//
+
             calculate_frequency(array2, arraySize);
+
             chart1.Series.Clear();
-            Series SeriesOfPoints_Fat = new Series("Fat");
-            SeriesOfPoints_Fat.ChartType = SeriesChartType.Line;
-            SeriesOfPoints_Fat.Points.AddXY(0, 0);
-            SeriesOfPoints_Fat.Color = Color.Yellow;
-            SeriesOfPoints_Fat.BorderWidth = 2;
-            for (int i = 0; i < index_difference; i++)
-            {
-                SeriesOfPoints_Fat.Points.AddXY(array_frequency[i], result[i]);
-            }
-            chart1.Series.Add(SeriesOfPoints_Fat); //* Volume
+            Series SeriesOfPoints_Histogramm = new Series("Density");
+            chart1.Series.Add(SeriesOfPoints_Histogramm);
+            this.chart1.Series["Density"].Points.DataBindXY(array_difference_data, frequency);
 
         }
 
@@ -130,13 +128,13 @@ namespace GlazSegment
                     data_result1[f] = data[j];
                     data_result2[f] = idx;
                 }
-                array_frequency = new float[f];
-                result = new int[f];
+                array_difference_data = new float[f];
+                frequency = new int[f];
                 index_difference = f;
                 for (int j = 0; j < f; j++)
                 {
-                    array_frequency[j] = data_result1[j];
-                    result[j] = data_result2[j];
+                    array_difference_data[j] = data_result1[j];
+                    frequency[j] = data_result2[j];
                 }
             }
         }
@@ -193,6 +191,21 @@ namespace GlazSegment
         {
             m = new Shaders();
             this.DoubleBuffered = true;
+        }
+
+        private void button_char_Click(object sender, EventArgs e)
+        {
+            MathWait = 0.0;
+            for (int i = 0; i < index_difference; i++)
+                MathWait += array_difference_data[i] * frequency[i] / arraySize; // Нормальная частота от 0 до 1 встречаемости, поэтому и делим
+            Dispers = 0;
+            for (int i = 0; i < index_difference; i++)
+                Dispers += (frequency[i] / arraySize) * (array_difference_data[i] - MathWait);
+            G = Math.Pow(Dispers, 0.5);
+
+            label1.Text = "Математическое ожидание = " + MathWait;
+            label2.Text = "Дисперсия = " + Dispers;
+            label3.Text = "Среднеквадратичное отклонение = " + G;
         }
     }
 }

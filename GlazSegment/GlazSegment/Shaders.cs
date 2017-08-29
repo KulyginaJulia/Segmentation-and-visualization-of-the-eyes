@@ -24,12 +24,10 @@ namespace GlazSegment
         public int volumeLoc;
         public int vbo_position;
         public int attribute_vpos;
-
-        public Vector3 campos = new Vector3(1.0f, 0, 0);
-
-        // public int uniform_pos;
         public int uniform_z;
-        // float size;
+        public int uniform_max;
+        public int uniform_min;
+
         public float maxDen = 0f, minDen = 0f;
         public Vector3[] vertdata;
         public int X1, Y1, Z1;
@@ -60,11 +58,10 @@ namespace GlazSegment
                 VZ = reader.ReadSingle();
 
                 arraySize = X1 * Y1 * Z1;
-                //array = new short[arraySize];
                 array = new float[arraySize];
                 for (int i = 0; i < arraySize; ++i)
                 {
-                    array[i] = reader.ReadInt16(); // 4092 - максимальная плотность в бинарном файле, переводим таким образом плотность в отрезок [0,1]
+                    array[i] = reader.ReadInt16();
                     if (array[i] > maxDen)
                         maxDen = array[i];
                     if (array[i] < minDen)
@@ -72,11 +69,6 @@ namespace GlazSegment
                 }
                 Console.WriteLine("Read");
                 reader.Close();
-
-                for (int i = 0; i < arraySize; i++)
-                {
-                    array[i] = array[i] / (maxDen - minDen);
-                }
             }
             else
                 Console.WriteLine("File was not found");
@@ -117,6 +109,8 @@ namespace GlazSegment
             volumeLoc = GL.GetUniformLocation(BasicProgramID, "VolumeTex");
             attribute_vpos = GL.GetAttribLocation(BasicProgramID, "vPosition");
             uniform_z = GL.GetUniformLocation(BasicProgramID, "Z");
+            uniform_max = GL.GetUniformLocation(BasicProgramID, "max_den");
+            uniform_min = GL.GetUniformLocation(BasicProgramID, "min_den");
 
             GL.GenBuffers(1, out vbo_position);
 
@@ -131,8 +125,7 @@ namespace GlazSegment
             GL.TexParameter(TextureTarget.Texture3D, TextureParameterName.TextureWrapR, (int)TextureWrapMode.Repeat);
 
             GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
-            GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
-            GL.TexImage3D(TextureTarget.Texture3D, 0, PixelInternalFormat.Intensity, X1, Y1, Z1, 0, OpenTK.Graphics.OpenGL.PixelFormat.Luminance, PixelType.Float, array);
+            GL.TexImage3D(TextureTarget.Texture3D, 0, PixelInternalFormat.Alpha, X1, Y1, Z1, 0, OpenTK.Graphics.OpenGL.PixelFormat.Alpha, PixelType.Float, array);
             //update
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo_position);
 
@@ -140,9 +133,9 @@ namespace GlazSegment
             GL.VertexAttribPointer(attribute_vpos, 3, VertexAttribPointerType.Float, false, 0, 0);
 
             GL.UseProgram(BasicProgramID);
-            //GL.ActiveTexture(TextureUnit.Texture0);
-            //GL.BindTexture(TextureTarget.Texture3D, texture);//
             GL.Uniform1(volumeLoc, 0);
+            GL.Uniform1(uniform_max, maxDen);
+            GL.Uniform1(uniform_min, minDen);
 
             GL.Uniform1(uniform_z, (float)Z1);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
