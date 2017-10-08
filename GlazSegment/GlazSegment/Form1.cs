@@ -204,7 +204,10 @@ namespace GlazSegment
 
         private void button1_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(mRVolume.GetVolFm(mControl.mBitmapList[masks.SelectedIndex], colorBox[cColor.SelectedIndex]).ToString());
+            if (masks.SelectedIndex > -1)
+            {
+                MessageBox.Show(mRVolume.GetVolFm(mControl.mBitmapList[masks.SelectedIndex], colorBox[cColor.SelectedIndex]).ToString());
+            }
         }
 
         private void LoadMask_Click(object sender, EventArgs e)
@@ -487,23 +490,20 @@ namespace GlazSegment
         {
         }
 
-        private void bmirror_Click(object sender, EventArgs e)
-        {
-            if (rrleft.Checked)
-            {
-                mRVolume.mirror = !mRVolume.mirror;
-            }
-            else
-            {
-                mLVolume.mirror = !mLVolume.mirror;
-            }
-            rePaint();
-        }
-
         private void dИзображениеToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Form2 tempDialog = new Form2();
             tempDialog.ShowDialog();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            mLVolume.MirroringMap();
+        }
+
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            mLVolume.MirroringMap();
         }
 
         private void masks_SelectedIndexChanged_1(object sender, EventArgs e)

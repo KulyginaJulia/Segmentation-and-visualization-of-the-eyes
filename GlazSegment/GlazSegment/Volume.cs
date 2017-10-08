@@ -55,16 +55,34 @@ class Volume
         return Math.Min(max, Math.Max(min, value));
     }
 
+    public void MirroringMap()
+    {
+        int length = mHeight * mWidth * mDepth;
+        short[] iData = new short[length];
+        for (int j = 0; j < mDepth; j++)
+        {
+            for (int i = 0; i < mHeight; i++)
+            {
+                for (int k = 0; k < mWidth; k++)
+                {
+                    //int _currentlayer = (mWidth) * (mHeight) * j;
+
+                    iData[j * mWidth * mHeight + i * mHeight + k] = mData[j * mWidth * mHeight + i * mHeight + k];
+                }
+            }
+        }
+        mData = iData;
+        iData = new short[0];
+        return;
+    }
     private Bitmap CreateLayerBitmap(int currentLayer, int maxDensity, int minDensity)
     {
+        currentLayer = clamp(currentLayer, 0, mDepth);
         int z = mWidth * mHeight * currentLayer;
         step = 255.0f / (maxDensity - minDensity);
-        currentLayer = clamp(currentLayer, 0, mDepth);
         layerImage.Dispose();
         layerImage = new Bitmap(mWidth, mHeight);
-
         Color color;
-
         for (int y = 0; y < mHeight; y++)
             for (int x = 0; x < mWidth; x++)
             {
@@ -75,22 +93,10 @@ class Volume
                 else if (colorValue >= 255)
                     color = Color.Black;
                 else
-                {
                     color = Color.FromArgb(colorValue, colorValue, colorValue);
-                }
 
                 layerImage.SetPixel(x, y, color);
             }
-
-        for (int x = 0; x < rotation; x++)
-        {
-            layerImage.RotateFlip(RotateFlipType.Rotate90FlipNone);
-        }
-        if (mirror)
-        {
-            layerImage.RotateFlip(RotateFlipType.RotateNoneFlipX);
-        }
-
         return layerImage;
     }
 
@@ -99,7 +105,7 @@ class Volume
         shaderObj = GL.CreateShader(type);
         GL.ShaderSource(shaderObj, File.ReadAllText(shaderSource));
         GL.CompileShader(shaderObj);
-       // GL.GetShader(shaderObj, ShaderParameter.CompileStatus, out int statusCode);
+        // GL.GetShader(shaderObj, ShaderParameter.CompileStatus, out int statusCode);
     }
     private void InitShaderProgram()
     {
@@ -232,9 +238,13 @@ class Volume
                 mMax = mData.Max();
 
                 mStep = mMax / 255;
+
+                //MirroringMap();
                 mCurrentImage = new Bitmap(mWidth, mHeight);
 
                 reader.Close();
+
+
                 return true;
             }
             catch (Exception)
@@ -274,7 +284,7 @@ class Volume
     public double getMaskMax(int currentlayer, Bitmap mask, Color col)
     {
         currentlayer = clamp(currentlayer, 0, mDepth);
-        short max = mData[1]; 
+        short max = mData[1];
 
         int z = mWidth * mHeight * currentlayer,
             n = 0;
@@ -357,7 +367,7 @@ class Volume
 
         int z = mWidth * mHeight * currentlayer,
             n = 0;
-        
+
         for (int x = 0; x < mask.Width; x++)
             for (int y = 0; y < mask.Height; y++)
             {
@@ -406,7 +416,7 @@ class Volume
         for (int x = 0; x < bit.Width; x++)
             for (int y = 0; y < bit.Height; y++)
             {
-                if (bit.GetPixel(x, y).ToArgb() == col.ToArgb() )
+                if (bit.GetPixel(x, y).ToArgb() == col.ToArgb())
                     amount++;
             }
         bit.Dispose();
