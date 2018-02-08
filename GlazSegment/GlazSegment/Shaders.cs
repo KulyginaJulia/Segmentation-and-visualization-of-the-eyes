@@ -24,10 +24,19 @@ namespace GlazSegment
         public int volumeLoc;
         public int vbo_position;
         public int attribute_vpos;
-        public int uniform_z;
+        public int uniform_pos;
+        public int uniform_view;
+        public int uniform_up;
+        public int uniform_side;
         public int uniform_max;
         public int uniform_min;
+        public int uniform_cell_size;
+        public int uniform_color;
+        public int uniform_iso_value;
 
+        public int uniform_x;
+        public int uniform_y;
+        public int uniform_z;
         public float maxDen = 0f, minDen = 0f;
         public Vector3[] vertdata;
         public int X1, Y1, Z1;
@@ -35,6 +44,8 @@ namespace GlazSegment
         public float[] array;
         public int texture;
         public int arraySize;
+
+        public Vector3 cell_size;
 
         public Shaders()
         {
@@ -56,6 +67,7 @@ namespace GlazSegment
                 VX = reader.ReadSingle();
                 VY = reader.ReadSingle();
                 VZ = reader.ReadSingle();
+                Console.WriteLine("{0} {1} {2}", VX, VY, VZ);
 
                 arraySize = X1 * Y1 * Z1;
                 array = new float[arraySize];
@@ -68,6 +80,8 @@ namespace GlazSegment
                         minDen = array[i];
                 }
                 Console.WriteLine("Read");
+                Console.WriteLine("min max");
+                Console.WriteLine("{0} {1}", minDen, maxDen);
                 reader.Close();
             }
             else
@@ -85,8 +99,7 @@ namespace GlazSegment
             GL.AttachShader(program, address);
             Console.WriteLine(GL.GetShaderInfoLog(address));
         }
-
-        public void InitShaders()
+        public void InitShaders(Camera cam, Vector2 interval_1, Vector3 color1)
         {
             vertdata = new Vector3[] {
                             new Vector3(-1f, -1f, 0f),
@@ -94,6 +107,7 @@ namespace GlazSegment
                             new Vector3( 1f, 1f, 0f),
                             new Vector3(-1f, 1f, 0f)
            };
+            cell_size = new Vector3(VX, VY, VZ);
             BasicProgramID = GL.CreateProgram();
             loadShader("..//..//ray_casting.vert", ShaderType.VertexShader, BasicProgramID, out BasicVertexShader);
             loadShader("..//..//ray_casting.frag", ShaderType.FragmentShader, BasicProgramID, out BasicFragmentShader);
@@ -108,10 +122,18 @@ namespace GlazSegment
 
             volumeLoc = GL.GetUniformLocation(BasicProgramID, "VolumeTex");
             attribute_vpos = GL.GetAttribLocation(BasicProgramID, "vPosition");
+            uniform_x = GL.GetUniformLocation(BasicProgramID, "X");
+            uniform_y = GL.GetUniformLocation(BasicProgramID, "Y");
             uniform_z = GL.GetUniformLocation(BasicProgramID, "Z");
             uniform_max = GL.GetUniformLocation(BasicProgramID, "max_den");
             uniform_min = GL.GetUniformLocation(BasicProgramID, "min_den");
-
+            uniform_pos = GL.GetUniformLocation(BasicProgramID, "campos");
+            uniform_view = GL.GetUniformLocation(BasicProgramID, "view");
+            uniform_up = GL.GetUniformLocation(BasicProgramID, "up");
+            uniform_side = GL.GetUniformLocation(BasicProgramID, "side");
+            uniform_cell_size = GL.GetUniformLocation(BasicProgramID, "cell_size");
+            uniform_color = GL.GetUniformLocation(BasicProgramID, "color");
+            uniform_iso_value = GL.GetUniformLocation(BasicProgramID, "iso_value");
             GL.GenBuffers(1, out vbo_position);
 
 
@@ -125,7 +147,8 @@ namespace GlazSegment
             GL.TexParameter(TextureTarget.Texture3D, TextureParameterName.TextureWrapR, (int)TextureWrapMode.Repeat);
 
             GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
-            GL.TexImage3D(TextureTarget.Texture3D, 0, PixelInternalFormat.Alpha, X1, Y1, Z1, 0, OpenTK.Graphics.OpenGL.PixelFormat.Alpha, PixelType.Float, array);
+            GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
+            GL.TexImage3D(TextureTarget.Texture3D, 0, PixelInternalFormat.Intensity, X1, Y1, Z1, 0, OpenTK.Graphics.OpenGL.PixelFormat.Luminance, PixelType.Float, array);
             //update
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo_position);
 
@@ -134,10 +157,25 @@ namespace GlazSegment
 
             GL.UseProgram(BasicProgramID);
             GL.Uniform1(volumeLoc, 0);
+
+            GL.Uniform3(uniform_pos, cam.camera_pos);
+            GL.Uniform3(uniform_side, cam.camera_side);
+            GL.Uniform3(uniform_up, cam.camera_up);
+            GL.Uniform3(uniform_view, cam.camera_view);
+            GL.Uniform3(uniform_cell_size, cell_size);
+            GL.Uniform3(uniform_color, color1);
+
+            GL.Uniform1(uniform_x, (float)X1);
+            GL.Uniform1(uniform_y, (float)Y1);
+            GL.Uniform1(uniform_z, (float)Z1);
             GL.Uniform1(uniform_max, maxDen);
             GL.Uniform1(uniform_min, minDen);
+            float max_bound = (interval_1.X - minDen) / (maxDen - minDen);
+            float min_bound = (interval_1.Y - minDen) / (maxDen - minDen);
 
-            GL.Uniform1(uniform_z, (float)Z1);
+            float iso_value = (max_bound + min_bound) / 2;
+            Console.WriteLine("iso = {0} ", iso_value);
+            GL.Uniform1(uniform_iso_value, iso_value);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
         }

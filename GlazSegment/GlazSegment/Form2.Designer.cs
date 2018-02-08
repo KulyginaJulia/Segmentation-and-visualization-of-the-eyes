@@ -28,12 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.glControl1 = new OpenTK.GLControl();
             this.button_build = new System.Windows.Forms.Button();
-            this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.файлToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -42,7 +38,12 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
+            this.cartesianChart1 = new LiveCharts.WinForms.CartesianChart();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.button_color = new System.Windows.Forms.Button();
+            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -56,6 +57,7 @@
             this.glControl1.VSync = false;
             this.glControl1.Load += new System.EventHandler(this.glControl1_Load);
             this.glControl1.Paint += new System.Windows.Forms.PaintEventHandler(this.glControl1_Paint);
+            this.glControl1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.glControl1_KeyPress);
             // 
             // button_build
             // 
@@ -66,22 +68,6 @@
             this.button_build.Text = "Build";
             this.button_build.UseVisualStyleBackColor = true;
             this.button_build.Click += new System.EventHandler(this.button_build_Click);
-            // 
-            // chart1
-            // 
-            chartArea1.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.chart1.Legends.Add(legend1);
-            this.chart1.Location = new System.Drawing.Point(652, 27);
-            this.chart1.Name = "chart1";
-            series1.ChartArea = "ChartArea1";
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            this.chart1.Series.Add(series1);
-            this.chart1.Size = new System.Drawing.Size(403, 323);
-            this.chart1.TabIndex = 2;
-            this.chart1.Text = "chart1";
             // 
             // menuStrip1
             // 
@@ -152,16 +138,62 @@
             this.label3.TabIndex = 7;
             this.label3.Text = "label3";
             // 
+            // cartesianChart1
+            // 
+            this.cartesianChart1.Location = new System.Drawing.Point(610, 27);
+            this.cartesianChart1.Name = "cartesianChart1";
+            this.cartesianChart1.Size = new System.Drawing.Size(458, 379);
+            this.cartesianChart1.TabIndex = 8;
+            this.cartesianChart1.Text = "cartesianChart1";
+            this.cartesianChart1.DataClick += new LiveCharts.Events.DataClickHandler(this.cartesianChart1_DataClick);
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(484, 178);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(100, 20);
+            this.textBox1.TabIndex = 9;
+            this.textBox1.Text = "1592";
+            // 
+            // textBox2
+            // 
+            this.textBox2.Location = new System.Drawing.Point(484, 204);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(100, 20);
+            this.textBox2.TabIndex = 10;
+            this.textBox2.Text = "2175";
+            // 
+            // button_color
+            // 
+            this.button_color.Location = new System.Drawing.Point(484, 230);
+            this.button_color.Name = "button_color";
+            this.button_color.Size = new System.Drawing.Size(100, 23);
+            this.button_color.TabIndex = 11;
+            this.button_color.Text = "color";
+            this.button_color.UseVisualStyleBackColor = true;
+            this.button_color.Click += new System.EventHandler(this.button_color_Click);
+            // 
+            // textBox3
+            // 
+            this.textBox3.Location = new System.Drawing.Point(484, 259);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(100, 20);
+            this.textBox3.TabIndex = 12;
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1080, 437);
+            this.Controls.Add(this.textBox3);
+            this.Controls.Add(this.button_color);
+            this.Controls.Add(this.textBox2);
+            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.cartesianChart1);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button_char);
-            this.Controls.Add(this.chart1);
             this.Controls.Add(this.button_build);
             this.Controls.Add(this.glControl1);
             this.Controls.Add(this.menuStrip1);
@@ -170,7 +202,6 @@
             this.Text = "Form2";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form2_FormClosing);
             this.Load += new System.EventHandler(this.Form2_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
@@ -182,7 +213,6 @@
 
         private OpenTK.GLControl glControl1;
         private System.Windows.Forms.Button button_build;
-        private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem файлToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
@@ -191,5 +221,11 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
+        private LiveCharts.WinForms.CartesianChart cartesianChart1;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.Button button_color;
+        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.ColorDialog colorDialog1;
     }
 }
