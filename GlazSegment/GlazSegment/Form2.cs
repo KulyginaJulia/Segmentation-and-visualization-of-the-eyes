@@ -87,7 +87,7 @@ namespace GlazSegment
         {
             Console.WriteLine(m.glslVersion);
             Console.WriteLine(m.glVersion);
-            m.InitShaders(cam, interval_1, color1);
+            m.InitShaders(cam, interval_1, color1, false);
 
             GL.Viewport(0, 0, glControl1.Width, glControl1.Height);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);

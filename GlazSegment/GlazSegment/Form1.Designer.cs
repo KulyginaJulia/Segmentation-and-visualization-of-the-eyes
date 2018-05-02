@@ -61,6 +61,7 @@
             this.window_max = new System.Windows.Forms.TextBox();
             this.window_min = new System.Windows.Forms.TextBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.button2 = new System.Windows.Forms.Button();
             this.wpOffset = new System.Windows.Forms.TextBox();
             this.rWandPen = new System.Windows.Forms.RadioButton();
             this.cSize = new System.Windows.Forms.ComboBox();
@@ -91,7 +92,8 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.masks = new System.Windows.Forms.CheckedListBox();
-            this.button2 = new System.Windows.Forms.Button();
+            this.radioButton_knife = new System.Windows.Forms.RadioButton();
+            this.button_to3D = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.Tabs.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -118,6 +120,7 @@
             this.glControl1.Load += new System.EventHandler(this.glControl1_Load);
             this.glControl1.Click += new System.EventHandler(this.glControl1_Click);
             this.glControl1.Paint += new System.Windows.Forms.PaintEventHandler(this.glControl1_Paint);
+            this.glControl1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.glControl1_MouseMove);
             // 
             // glControl2
             // 
@@ -421,6 +424,8 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.button_to3D);
+            this.tabPage2.Controls.Add(this.radioButton_knife);
             this.tabPage2.Controls.Add(this.button2);
             this.tabPage2.Controls.Add(this.wpOffset);
             this.tabPage2.Controls.Add(this.rWandPen);
@@ -439,6 +444,16 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Маски";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(260, 6);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(75, 23);
+            this.button2.TabIndex = 10;
+            this.button2.Text = "button2";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click_1);
             // 
             // wpOffset
             // 
@@ -773,15 +788,28 @@
             this.masks.TabIndex = 15;
             this.masks.SelectedIndexChanged += new System.EventHandler(this.masks_SelectedIndexChanged_1);
             // 
-            // button2
+            // radioButton_knife
             // 
-            this.button2.Location = new System.Drawing.Point(260, 6);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 10;
-            this.button2.Text = "button2";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click_1);
+            this.radioButton_knife.AutoSize = true;
+            this.radioButton_knife.Location = new System.Drawing.Point(260, 35);
+            this.radioButton_knife.Name = "radioButton_knife";
+            this.radioButton_knife.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.radioButton_knife.Size = new System.Drawing.Size(59, 17);
+            this.radioButton_knife.TabIndex = 12;
+            this.radioButton_knife.TabStop = true;
+            this.radioButton_knife.Text = "Ножик";
+            this.radioButton_knife.UseVisualStyleBackColor = true;
+            this.radioButton_knife.MouseClick += new System.Windows.Forms.MouseEventHandler(this.radioButton_knife_MouseClick);
+            // 
+            // button_to3D
+            // 
+            this.button_to3D.Location = new System.Drawing.Point(341, 6);
+            this.button_to3D.Name = "button_to3D";
+            this.button_to3D.Size = new System.Drawing.Size(75, 23);
+            this.button_to3D.TabIndex = 13;
+            this.button_to3D.Text = "To 3D";
+            this.button_to3D.UseVisualStyleBackColor = true;
+            this.button_to3D.Click += new System.EventHandler(this.button_to3D_Click);
             // 
             // Form1
             // 
@@ -889,6 +917,8 @@
         private System.Windows.Forms.ToolStripMenuItem dИзображениеToolStripMenuItem;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button button_to3D;
+        private System.Windows.Forms.RadioButton radioButton_knife;
     }
 }
 

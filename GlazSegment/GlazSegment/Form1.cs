@@ -269,9 +269,9 @@ namespace GlazSegment
                        y = (Cursor.Position.Y - P.Y) * Oy;
 
 
-                if (!rWandPen.Checked)
+                if (!rWandPen.Checked) // Если это не волшебная палочка, тогда
                 {
-                    switch (cForm.SelectedIndex)
+                    switch (cForm.SelectedIndex) // Вероятно это кисть или ластик, определяем форму кисти
                     {
                         case 0:
                             {
@@ -281,7 +281,7 @@ namespace GlazSegment
                                             if ((int)x - (cSize.SelectedIndex + 1) / 2 + i < mControl.mBitmapList[masks.SelectedIndex].Width)
                                                 if ((int)y - (cSize.SelectedIndex + 1) / 2 + j >= 0)
                                                     if ((int)y - (cSize.SelectedIndex + 1) / 2 + j < mControl.mBitmapList[masks.SelectedIndex].Height)
-                                                        if (rPen.Checked)
+                                                        if (rPen.Checked) // Если это все таки кисть, то рисуем выбранным цветом, если нет, то белым - ластик 
                                                             mControl.mBitmapList[masks.SelectedIndex].SetPixel((int)x - (cSize.SelectedIndex + 1) / 2 + i, (int)y - (cSize.SelectedIndex + 1) / 2 + j, colorBox[cColor.SelectedIndex]);
                                                         else
                                                             mControl.mBitmapList[masks.SelectedIndex].SetPixel((int)x - (cSize.SelectedIndex + 1) / 2 + i, (int)y - (cSize.SelectedIndex + 1) / 2 + j, Color.White);
@@ -330,7 +330,7 @@ namespace GlazSegment
             }
         }
         public int filen;
-        
+
 
         private void статистикаToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -389,7 +389,8 @@ namespace GlazSegment
                             filen = (j * currentlayer.Maximum + i) / (4 * currentlayer.Maximum) * 100;
                             file.WriteLine(i.ToString() + "\t:\t|\t" + min.ToString() + "\t|\t" + max.ToString() + "\t|\t" + avg.ToString() + "\t|\t" + deviation.ToString());
                             var sync = SynchronizationContext.Current;
-                            new Thread(_ => {
+                            new Thread(_ =>
+                            {
                                 sync.Post(__ =>
                                     progressBar1.Value = filen, null);
                             }).Start();
@@ -504,6 +505,69 @@ namespace GlazSegment
         private void button2_Click_1(object sender, EventArgs e)
         {
             mLVolume.MirroringMap();
+        }
+
+        private void radioButton_knife_MouseClick(object sender, MouseEventArgs e)
+        {
+            rEraser.Checked = false;
+            rWandPen.Checked = false;
+            wpOffset.Enabled = false;
+            rPen.Checked = false;
+            radioButton_knife.Checked = true;
+        }
+        public List<Point> Points = new List<Point>();
+        private void glControl1_MouseMove(object sender, MouseEventArgs e)
+        {
+            int count = 0;
+            Point Ps = new Point();
+            Point Pf = new Point();
+            if ((radioButton_knife.Checked) && (masks.SelectedIndex > -1))
+            {
+                Point P = PointToScreen(new Point(glControl1.Bounds.Left, glControl1.Bounds.Top));
+                double Ox = (double)(mControl.mBitmapList[masks.SelectedIndex].Width / 350.0),
+                       Oy = (double)(mControl.mBitmapList[masks.SelectedIndex].Height / 350.0);
+
+                if (e.Button == MouseButtons.Left)
+                {
+
+                    Pen mypen = new Pen(Color.Yellow, 2);
+                    Brush fillBrush = new SolidBrush(Color.Orange);
+                    Graphics g2 = Graphics.FromImage(mControl.mBitmapList[masks.SelectedIndex]);
+                    g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                    int size = 2;
+                    Point startPoint = new Point();
+                    startPoint.X = Convert.ToInt32((Cursor.Position.X - P.X) * Ox);
+                    startPoint.Y = Convert.ToInt32((Cursor.Position.Y - P.Y) * Oy);
+
+                    Points.Add(startPoint);
+                    Rectangle rectangle = new Rectangle(startPoint.X - (size / 2), startPoint.Y - (size / 2), size, size);
+                    if (count == 0) { Ps = startPoint; }
+                    count++;
+                    g2.FillEllipse(fillBrush, rectangle);
+                    g2.DrawEllipse(mypen, rectangle);
+                    g2.Dispose();
+                    rePaint();
+                    Pf = startPoint;
+                }
+                else if (Points.Count > 2)
+                {
+                    Pen mypen = new Pen(Color.Green, 2);
+                    Graphics g2 = Graphics.FromImage(mControl.mBitmapList[masks.SelectedIndex]);
+                    g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                    g2.DrawClosedCurve(mypen, Points.ToArray());
+                    g2.Dispose();
+                    rePaint();
+                }
+            }
+        }
+
+        private void button_to3D_Click(object sender, EventArgs e)
+        {
+            if (!radioButton_knife.Checked) { }
+            int Size_contur = Points.Count;
+            string filename = PathLeft.Text;
+            Form3 tempDialog = new Form3(Points, filename, glControl1.Width, glControl1.Height);
+            tempDialog.ShowDialog();
         }
 
         private void masks_SelectedIndexChanged_1(object sender, EventArgs e)
