@@ -64,7 +64,7 @@ namespace GlazSegment
             this.height = height;
             Filename = filename;
             //LoadData(filename);
-            ConturToArray(); //нужно нарисовать контур полностью, на самом деле список точек не полный
+            ConturToArray();
             flag = true;
 
             InitializeComponent();
@@ -150,6 +150,17 @@ namespace GlazSegment
             int length = mWidth * mHeight * mDepth;
 
             Contur = new float[length];
+            float[,,] Contur_middle = new float[mWidth, mHeight, mDepth];
+            for (int i = 0; i < mWidth; i++)
+            {
+                for (int j = 0; j < mHeight; j++)
+                {
+                    for (int k = 0; k < mDepth; k++)
+                    {
+                        // Contur_middle[i, j, k] =  что нибудь придумать с трансформацией
+                    }
+                }
+            }
             for (int i = 0; i < length; i++)
             {
                 Contur[i] = 0;

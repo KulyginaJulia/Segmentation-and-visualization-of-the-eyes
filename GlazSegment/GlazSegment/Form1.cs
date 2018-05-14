@@ -516,21 +516,24 @@ namespace GlazSegment
             radioButton_knife.Checked = true;
         }
         public List<Point> Points = new List<Point>();
+        public Pen mypen = new Pen(Color.Green, 1);
         private void glControl1_MouseMove(object sender, MouseEventArgs e)
         {
             int count = 0;
             Point Ps = new Point();
             Point Pf = new Point();
+            
             if ((radioButton_knife.Checked) && (masks.SelectedIndex > -1))
             {
                 Point P = PointToScreen(new Point(glControl1.Bounds.Left, glControl1.Bounds.Top));
                 double Ox = (double)(mControl.mBitmapList[masks.SelectedIndex].Width / 350.0),
                        Oy = (double)(mControl.mBitmapList[masks.SelectedIndex].Height / 350.0);
+                
 
                 if (e.Button == MouseButtons.Left)
                 {
 
-                    Pen mypen = new Pen(Color.Yellow, 2);
+                    Pen mypen_ = new Pen(Color.Yellow, 2);
                     Brush fillBrush = new SolidBrush(Color.Orange);
                     Graphics g2 = Graphics.FromImage(mControl.mBitmapList[masks.SelectedIndex]);
                     g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
@@ -544,29 +547,49 @@ namespace GlazSegment
                     if (count == 0) { Ps = startPoint; }
                     count++;
                     g2.FillEllipse(fillBrush, rectangle);
-                    g2.DrawEllipse(mypen, rectangle);
+                    g2.DrawEllipse(mypen_, rectangle);
                     g2.Dispose();
                     rePaint();
                     Pf = startPoint;
                 }
                 else if (Points.Count > 2)
                 {
-                    Pen mypen = new Pen(Color.Green, 2);
                     Graphics g2 = Graphics.FromImage(mControl.mBitmapList[masks.SelectedIndex]);
                     g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                     g2.DrawClosedCurve(mypen, Points.ToArray());
+                   
                     g2.Dispose();
                     rePaint();
+
+            
                 }
             }
+            
         }
-
+        public List<Point> Contur_green = new List<Point>();
+        public void CalculateContur(Color colorPen)
+        {
+            if (masks.SelectedIndex > -1)
+            {
+                Bitmap mp = new Bitmap(mControl.mBitmapList[masks.SelectedIndex]);
+                //mp =  mControl.mBitmapList[masks.SelectedIndex];
+                for (int i = 0; i < mp.Height; i++)
+                    for (int j = 0; j < mp.Width; j++)
+                    {
+                        if (mp.GetPixel(j, i).G > mp.GetPixel(j, i).R)
+                        {
+                            Contur_green.Add(new Point(i, j));
+                        }
+                    }
+            }
+        }
         private void button_to3D_Click(object sender, EventArgs e)
         {
             if (!radioButton_knife.Checked) { }
-            int Size_contur = Points.Count;
+            CalculateContur(mypen.Color);
+            int Size_contur = Contur_green.Count;//Points.Count;
             string filename = PathLeft.Text;
-            Form3 tempDialog = new Form3(Points, filename, glControl1.Width, glControl1.Height);
+            Form3 tempDialog = new Form3(Contur_green, filename, glControl1.Width, glControl1.Height);
             tempDialog.ShowDialog();
         }
 
