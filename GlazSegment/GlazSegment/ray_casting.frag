@@ -7,7 +7,6 @@
 
 in vec3 			EntryPoint;
 uniform sampler3D   VolumeTex;
-uniform sampler3D   MaskTex;
 uniform float		X;
 uniform float		Y;
 uniform float       Z;
@@ -20,7 +19,6 @@ uniform float maxDen;
 uniform float minDen;
 uniform vec3 color;
 uniform float iso_value;
-uniform float flag_mask;
 
 out vec4 FragColor;
 
@@ -125,14 +123,6 @@ void main()
 	float val_1 = 0.0, final, start, val_2 = 0.0;
 	vec3 currentPoint = ray.Origin;
 	float depth = 0;
-/*	
-	if (flag_mask == 1.0){
-		colorAcum = vec4(0.0, 1.0, 0.0, 1.0);
-	}
-	else{
-		colorAcum = vec4(1.0, 0.0, 0.0, 1.0);
-	}
-		*/
 	for (int i = 0; i < int((100* Z)); i++)
 	{
 		SRay currentRay = SRay(currentPoint, ray.Direction);
@@ -185,7 +175,6 @@ void main()
 					currentPoint = deltaDirLen*ray.Direction * value_step;	
 					norm = -normalize(IsoNormal(currentPoint));
 				}
-				if (flag_mask == 1.0){} // что делать?
 				colorAcum.xyz = Phong(uCamera.Position, currentPoint, norm, isoColor.xyz, LightPosition);
 				
 				colorAcum.w = val_2;

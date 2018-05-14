@@ -31,6 +31,8 @@ namespace GlazSegment
         public static Camera cam;
         public static Vector2 interval_1;
         public static Vector3 color1;
+        public string filepathtosh = "..//..//ray_casting-knife_t1.frag";
+        public string Filename;
 
         private void Form3_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -60,15 +62,17 @@ namespace GlazSegment
             Points = P;
             this.width = width;
             this.height = height;
-            LoadData(filename);
-            ConturToArray();
+            Filename = filename;
+            //LoadData(filename);
+            ConturToArray(); //нужно нарисовать контур полностью, на самом деле список точек не полный
             flag = true;
-            // Передать маску и дату в шейдер или что?
 
             InitializeComponent();
             glControl1.Invalidate();
         }
-
+        public void ListtoContur() {
+        
+        }
         void displayFPS()
         {
             if (DateTime.Now >= NextFPSUpdate)
@@ -84,7 +88,7 @@ namespace GlazSegment
         {
             Console.WriteLine(m.glslVersion);
             Console.WriteLine(m.glVersion);
-            m.InitShaders(cam, interval_1, color1, true);
+            m.InitShaders(cam, interval_1, color1, true, filepathtosh);
 
             GL.Viewport(0, 0, glControl1.Width, glControl1.Height);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -111,7 +115,8 @@ namespace GlazSegment
         {
             if (flag == true)
             {
-                m.loadVolumeData(mData);
+                // m.loadVolumeData(mData);
+                m.loadVolumeData(Filename);
                 m.loadVolumeMask(Contur);
                 Draw();
                 glControl1.MakeCurrent();
@@ -158,7 +163,7 @@ namespace GlazSegment
                     count = TransferFunctionCount(X_new, Y_new, mWidth); //p.X, p.Y, mWidth);
                     Contur[count] = 1; // p.X * mWidth/width;
                     Contur[count + 1] = 1; // p.Y * mHeight / height;
-                    Contur[count + 2] = i;
+                    Contur[count + 2] = 1 ;
                     count += 3;
                 }
             }

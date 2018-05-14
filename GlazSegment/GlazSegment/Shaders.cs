@@ -128,7 +128,7 @@ namespace GlazSegment
             GL.AttachShader(program, address);
             Console.WriteLine(GL.GetShaderInfoLog(address));
         }
-        public void InitShaders(Camera cam, Vector2 interval_1, Vector3 color1, bool flag_of_mask)
+        public void InitShaders(Camera cam, Vector2 interval_1, Vector3 color1, bool flag_of_mask, string filepathtofragshader)
         {
             vertdata = new Vector3[] {
                             new Vector3(-1f, -1f, 0f),
@@ -139,7 +139,7 @@ namespace GlazSegment
             cell_size = new Vector3(VX, VY, VZ);
             BasicProgramID = GL.CreateProgram();
             loadShader("..//..//ray_casting.vert", ShaderType.VertexShader, BasicProgramID, out BasicVertexShader);
-            loadShader("..//..//ray_casting.frag", ShaderType.FragmentShader, BasicProgramID, out BasicFragmentShader);
+            loadShader(filepathtofragshader, ShaderType.FragmentShader, BasicProgramID, out BasicFragmentShader);
 
             //Компановка программы
             GL.LinkProgram(BasicProgramID);
@@ -187,7 +187,8 @@ namespace GlazSegment
 
             if (flag_of_mask == true)
             {
-                texture_mask = GL.GenTexture();
+// ошибка в передачи маски в шейдер, хз что с ним
+              /*  texture_mask = GL.GenTexture();
                 GL.BindTexture(TextureTarget.Texture3D, texture);
                 GL.TexParameter(TextureTarget.Texture3D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
                 GL.TexParameter(TextureTarget.Texture3D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
@@ -198,6 +199,7 @@ namespace GlazSegment
                 GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
                 GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
                 GL.TexImage3D(TextureTarget.Texture3D, 0, PixelInternalFormat.Intensity, X1, Y1, Z1, 0, OpenTK.Graphics.OpenGL.PixelFormat.Luminance, PixelType.Float, mask);
+                */ 
                 tmp = 1f;
             }
             else

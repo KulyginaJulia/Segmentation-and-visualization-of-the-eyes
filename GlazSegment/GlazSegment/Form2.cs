@@ -69,7 +69,7 @@ namespace GlazSegment
         public static int count;
         public int norma;
         public List<Point_v> fi = new List<Point_v>();
-
+        public string filepathtosh = "..//..//ray_casting.frag";
         //**Functions**//
 
         void displayFPS()
@@ -87,7 +87,7 @@ namespace GlazSegment
         {
             Console.WriteLine(m.glslVersion);
             Console.WriteLine(m.glVersion);
-            m.InitShaders(cam, interval_1, color1, false);
+            m.InitShaders(cam, interval_1, color1, false, filepathtosh);
 
             GL.Viewport(0, 0, glControl1.Width, glControl1.Height);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
