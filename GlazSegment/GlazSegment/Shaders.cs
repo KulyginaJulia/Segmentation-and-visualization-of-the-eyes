@@ -187,9 +187,8 @@ namespace GlazSegment
 
             if (flag_of_mask == true)
             {
-// ошибка в передачи маски в шейдер, хз что с ним
-              /*  texture_mask = GL.GenTexture();
-                GL.BindTexture(TextureTarget.Texture3D, texture);
+                texture_mask = GL.GenTexture();
+                GL.BindTexture(TextureTarget.Texture3D, texture_mask);
                 GL.TexParameter(TextureTarget.Texture3D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
                 GL.TexParameter(TextureTarget.Texture3D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
                 GL.TexParameter(TextureTarget.Texture3D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
@@ -199,7 +198,7 @@ namespace GlazSegment
                 GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
                 GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
                 GL.TexImage3D(TextureTarget.Texture3D, 0, PixelInternalFormat.Intensity, X1, Y1, Z1, 0, OpenTK.Graphics.OpenGL.PixelFormat.Luminance, PixelType.Float, mask);
-                */ 
+
                 tmp = 1f;
             }
             else

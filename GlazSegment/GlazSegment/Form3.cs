@@ -63,15 +63,16 @@ namespace GlazSegment
             this.width = width;
             this.height = height;
             Filename = filename;
-            //LoadData(filename);
+            LoadData(filename);
             ConturToArray();
             flag = true;
 
             InitializeComponent();
             glControl1.Invalidate();
         }
-        public void ListtoContur() {
-        
+        public void ListtoContur()
+        {
+
         }
         void displayFPS()
         {
@@ -133,49 +134,99 @@ namespace GlazSegment
                     glControl1.Invalidate();
                 }
         }
-        /* public void TransferArray() {
-             int length = mWidth * mHeight * mDepth;
-             Array_with_mask = new float[length];
-             int In = 0, Out = 0;
-             for (int i = 0; i < length; i++) {
-                 if ()
-             }
-
-         }
- */
 
         public void ConturToArray()
         {
-            int count = 0;
+            // int count = 0;
             int length = mWidth * mHeight * mDepth;
 
             Contur = new float[length];
             float[,,] Contur_middle = new float[mWidth, mHeight, mDepth];
             for (int i = 0; i < mWidth; i++)
-            {
                 for (int j = 0; j < mHeight; j++)
-                {
                     for (int k = 0; k < mDepth; k++)
-                    {
-                        // Contur_middle[i, j, k] =  что нибудь придумать с трансформацией
-                    }
-                }
-            }
+                        Contur_middle[i, j, k] = 0;
             for (int i = 0; i < length; i++)
             {
                 Contur[i] = 0;
             }
-            for (int i = 0; i < length; i++)
+            foreach (Point p in Points)
             {
-                foreach (Point p in Points)
+                int X_new = p.X * mWidth / width;
+                int Y_new = p.Y * mHeight / height;
+                for (int k = 0; k < mDepth; k++)
                 {
-                    int X_new = p.X * mWidth / width;
-                    int Y_new = p.Y * mHeight / height;
-                    count = TransferFunctionCount(X_new, Y_new, mWidth); //p.X, p.Y, mWidth);
-                    Contur[count] = 1; // p.X * mWidth/width;
-                    Contur[count + 1] = 1; // p.Y * mHeight / height;
-                    Contur[count + 2] = 1 ;
-                    count += 3;
+                    Contur_middle[X_new, Y_new, k] = 1;
+                }
+                //count = TransferFunctionCount(X_new, Y_new, mWidth); //p.X, p.Y, mWidth);
+                //Contur[count] = 1; // p.X * mWidth/width;
+                // Contur[count + 1] = 1; // p.Y * mHeight / height;
+                // Contur[count + 2] = 1 ;
+                // count += 3;
+            }
+            //распечатать контур в файл
+            PrinttoFile(Contur_middle);
+            // Заполняем внутренность
+            float IN = 0, OUT = 0;
+            for (int k = 0; k < mDepth; k++)
+                for (int j = 0; j < mHeight; j++)
+                    for (int i = 0; i < mWidth; i++)
+                    {
+                        if (Contur_middle[i, j, k] != 0)
+                        {
+                            if (IN == 0) { IN = i; OUT = 0; }
+                            else if (OUT == 0) { OUT = i; IN = 0; }
+                        }
+                        else
+                        {
+                            if ((IN != 0) && (i > IN))
+                                Contur_middle[i, j, k] = 1;
+                        }
+
+                    }
+            PrinttoFile(Contur_middle);
+            // 3d -> 1d
+            int l = 0;
+            while (l < length)
+            {
+                for (int i = 0; i < mWidth; i++)
+                    for (int j = 0; j < mHeight; j++)
+                        for (int k = 0; k < mDepth; k++)
+                        {
+                            Contur[l] = Contur_middle[i, j, k];
+                            l++;
+                        }
+            }
+        }
+        public void PrinttoFile(float[,,] Contur_middle)
+        {
+            Stream myStream;
+            SaveFileDialog savefile = new SaveFileDialog();
+            savefile.Filter = "txt files (*.txt)|*.txt|All files (*.*|*.*";
+            savefile.FilterIndex = 1;
+            savefile.RestoreDirectory = true;
+
+            if (savefile.ShowDialog() == DialogResult.OK)
+            {
+                if ((myStream = savefile.OpenFile()) != null)
+                {
+                    myStream.Close();
+                    System.IO.StreamWriter file = new System.IO.StreamWriter(savefile.FileName);
+                    for (int j = 0; j < mHeight; j++)
+                    {
+                        for (int i = 0; i < mWidth; i++)
+                        {
+                            file.Write(Contur_middle[i, j, 0].ToString());
+                        }
+                        file.WriteLine();
+                    }
+
+
+                    file.WriteLine("==================================================================");
+                    file.WriteLine("==================================================================");
+                    file.WriteLine("==================================================================");
+                    file.WriteLine("END");
+                    file.Close();
                 }
             }
         }
@@ -201,13 +252,14 @@ namespace GlazSegment
 
                     int length = mWidth * mHeight * mDepth;
 
-                    mData = new float[length];
+                    /*mData = new float[length];
 
                     for (int i = 0; i < length; i++)
                     {
                         mData[i] = reader.ReadInt16();
 
                     }
+*/
                     reader.Close();
                     return true;
                 }
