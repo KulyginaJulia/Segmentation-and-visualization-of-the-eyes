@@ -94,9 +94,11 @@ namespace GlazSegment
             GL.Viewport(0, 0, glControl1.Width, glControl1.Height);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.CullFace);
+            //GL.Enable(EnableCap.CullFace);
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture3D, m.texture);
+            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.BindTexture(TextureTarget.Texture3D, m.texture_mask);
             GL.EnableVertexAttribArray(m.attribute_vpos);
 
             GL.DrawArrays(PrimitiveType.Quads, 0, 4);
@@ -199,19 +201,27 @@ namespace GlazSegment
                             }
                         }
                     }
-            PrinttoFile(Contur_middle);
+              PrinttoFile(Contur_middle);
             // 3d -> 1d
-            int l = 0;
-            while (l < length)
-            {
-                for (int i = 0; i < mWidth; i++)
-                    for (int j = 0; j < mHeight; j++)
-                        for (int k = 0; k < mDepth; k++)
-                        {
-                            Contur[l] = Contur_middle[i, j, k];
-                            l++;
-                        }
-            }
+            // int l = 0;
+            //while (l < length)
+            //{
+            //for (int k = 0; k < mDepth; k++)
+            //    for (int j = 0; j < mHeight; j++)
+            //        for (int i = 0; i < mWidth; i++)
+            //        {
+            //            Contur[i + j*mWidth + k*mHeight*mWidth] = Contur_middle[i, j, k];
+
+            //        }
+            //}
+           
+                for (int j = 0; j < mHeight; j++)
+                    for (int i = 0; i < mWidth; i++) 
+                            for (int k = 0; k < mDepth; k++)
+                    {
+                        Contur[k + i * mDepth + j * mWidth * mDepth] = Contur_middle[i, j, k];
+
+                    }
         }
         public void PrinttoFile(float[,,] Contur_middle)
         {
