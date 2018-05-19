@@ -533,11 +533,11 @@ namespace GlazSegment
                 if (e.Button == MouseButtons.Left)
                 {
 
-                    Pen mypen_ = new Pen(Color.Yellow, 2);
-                    Brush fillBrush = new SolidBrush(Color.Orange);
+                    Pen mypen_ = new Pen(Color.Blue, 1);
+                    Brush fillBrush = new SolidBrush(Color.Blue);
                     Graphics g2 = Graphics.FromImage(mControl.mBitmapList[masks.SelectedIndex]);
                     g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                    int size = 2;
+                    int size = 1;
                     Point startPoint = new Point();
                     startPoint.X = Convert.ToInt32((Cursor.Position.X - P.X) * Ox);
                     startPoint.Y = Convert.ToInt32((Cursor.Position.Y - P.Y) * Oy);
@@ -573,12 +573,12 @@ namespace GlazSegment
             {
                 Bitmap mp = new Bitmap(mControl.mBitmapList[masks.SelectedIndex]);
                 //mp =  mControl.mBitmapList[masks.SelectedIndex];
-                for (int i = 0; i < mp.Height; i++)
-                    for (int j = 0; j < mp.Width; j++)
+                for (int x = 0; x < mp.Width; x++)
+                    for (int y = 0; y < mp.Height; y++)
                     {
-                        if (mp.GetPixel(j, i).G > mp.GetPixel(j, i).R)
+                        if (mp.GetPixel(x, y).G > mp.GetPixel(x, y).R)
                         {
-                            Contur_green.Add(new Point(i, j));
+                            Contur_green.Add(new Point(x, y));
                         }
                     }
             }

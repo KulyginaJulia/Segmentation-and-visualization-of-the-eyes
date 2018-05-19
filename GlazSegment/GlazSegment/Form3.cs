@@ -167,22 +167,37 @@ namespace GlazSegment
             //распечатать контур в файл
             PrinttoFile(Contur_middle);
             // Заполняем внутренность
-            float IN = 0, OUT = 0;
-            for (int k = 0; k < mDepth; k++)
+            int cou = 0;
+            for (int z = 0; z < mDepth; z++)
                 for (int j = 0; j < mHeight; j++)
                     for (int i = 0; i < mWidth; i++)
                     {
-                        if (Contur_middle[i, j, k] != 0)
+                        if (Contur_middle[i, j, z] != 0)
                         {
-                            if (IN == 0) { IN = i; OUT = 0; }
-                            else if (OUT == 0) { OUT = i; IN = 0; }
+                            if (Contur_middle[i + 1, j, z] != 0)
+                            {
+                                i += 2;
+                            }
+                            else i++;
+                            cou = i;
+                            while ((i < mWidth))
+                            {
+                                if ((Contur_middle[i, j, z] == 0))
+                                    i++;
+                                else break;
+                            }
+                            if (i == mWidth)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                for (int k = cou; k < i; k++)
+                                {
+                                    Contur_middle[k, j, z] = 1;
+                                }
+                            }
                         }
-                        else
-                        {
-                            if ((IN != 0) && (i > IN))
-                                Contur_middle[i, j, k] = 1;
-                        }
-
                     }
             PrinttoFile(Contur_middle);
             // 3d -> 1d
