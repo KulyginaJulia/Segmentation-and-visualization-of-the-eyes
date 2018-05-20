@@ -19,7 +19,7 @@ namespace GlazSegment
 
 
         Color[] colorBox = new Color[4];
-
+        int plane = 0;
         public Form1()
         {
             colorBox[0] = Color.Red;
@@ -33,10 +33,22 @@ namespace GlazSegment
         }
         private void rePaint()
         {
-            mLVolume.LoadTexture(currentlayer.Value, int.Parse(window_max.Text), int.Parse(window_min.Text));
+            if ((radiobutton_x_y.Checked) && (!radioButton_x_z.Checked) && (!radioButton_y_z.Checked))
+            {
+                plane = 1;
+            }
+            else if ((!radiobutton_x_y.Checked) && (!radioButton_x_z.Checked) && (radioButton_y_z.Checked))
+            {
+                plane = 2;
+            }
+            else
+            {
+                plane = 3;
+            }
+            mLVolume.LoadTexture(currentlayer.Value, int.Parse(window_max.Text), int.Parse(window_min.Text), plane);
             glControl1.Refresh();
 
-            mRVolume.LoadTexture(currentlayer.Value, int.Parse(window_max.Text), int.Parse(window_min.Text));
+            mRVolume.LoadTexture(currentlayer.Value, int.Parse(window_max.Text), int.Parse(window_min.Text), plane);
             glControl2.Refresh();
 
             glControl1.Refresh();
@@ -97,9 +109,21 @@ namespace GlazSegment
 
         private void currentlayer_Scroll(object sender, ScrollEventArgs e)
         {
-            mLVolume.LoadTexture(currentlayer.Value, int.Parse(window_max.Text), int.Parse(window_min.Text));
+            if ((radiobutton_x_y.Checked) && (!radioButton_x_z.Checked) && (!radioButton_y_z.Checked))
+            {
+                plane = 1;
+            }
+            else if ((!radiobutton_x_y.Checked) && (radioButton_x_z.Checked) && (!radioButton_y_z.Checked))
+            {
+                plane = 2;
+            }
+            else
+            {
+                plane = 3;
+            }
+            mLVolume.LoadTexture(currentlayer.Value, int.Parse(window_max.Text), int.Parse(window_min.Text), plane);
             glControl1.Refresh();
-            mRVolume.LoadTexture(currentlayer.Value, int.Parse(window_max.Text), int.Parse(window_min.Text));
+            mRVolume.LoadTexture(currentlayer.Value, int.Parse(window_max.Text), int.Parse(window_min.Text), plane);
             glControl2.Refresh();
         }
 
@@ -522,13 +546,13 @@ namespace GlazSegment
             int count = 0;
             Point Ps = new Point();
             Point Pf = new Point();
-            
+
             if ((radioButton_knife.Checked) && (masks.SelectedIndex > -1))
             {
                 Point P = PointToScreen(new Point(glControl1.Bounds.Left, glControl1.Bounds.Top));
                 double Ox = (double)(mControl.mBitmapList[masks.SelectedIndex].Width / 350.0),
                        Oy = (double)(mControl.mBitmapList[masks.SelectedIndex].Height / 350.0);
-                
+
 
                 if (e.Button == MouseButtons.Left)
                 {
@@ -557,14 +581,14 @@ namespace GlazSegment
                     Graphics g2 = Graphics.FromImage(mControl.mBitmapList[masks.SelectedIndex]);
                     g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                     g2.DrawClosedCurve(mypen, Points.ToArray());
-                   
+
                     g2.Dispose();
                     rePaint();
 
-            
+
                 }
             }
-            
+
         }
         public List<Point> Contur_green = new List<Point>();
         public void CalculateContur(Color colorPen)
@@ -591,6 +615,23 @@ namespace GlazSegment
             string filename = PathLeft.Text;
             Form3 tempDialog = new Form3(Contur_green, filename, glControl1.Width, glControl1.Height);
             tempDialog.ShowDialog();
+        }
+
+        private void button_repaint_Click(object sender, EventArgs e)
+        {
+            if ((radiobutton_x_y.Checked) && (!radioButton_x_z.Checked) && (!radioButton_y_z.Checked))
+            {
+                plane = 1;
+            }
+            else if ((!radiobutton_x_y.Checked) && (radioButton_x_z.Checked) && (!radioButton_y_z.Checked))
+            {
+                plane = 2;
+            }
+            else
+            {
+                plane = 3;
+            }
+            rePaint();
         }
 
         private void masks_SelectedIndexChanged_1(object sender, EventArgs e)

@@ -75,7 +75,7 @@ class Volume
         iData = new short[0];
         return;
     }
-    private Bitmap CreateLayerBitmap(int currentLayer, int maxDensity, int minDensity)
+    private Bitmap DefenitionPlane_x_y(int currentLayer, int maxDensity, int minDensity)
     {
         currentLayer = clamp(currentLayer, 0, mDepth);
         int z = mWidth * mHeight * currentLayer;
@@ -98,6 +98,63 @@ class Volume
                 layerImage.SetPixel(x, y, color);
             }
         return layerImage;
+    }
+    private Bitmap DefenitionPlane_y_z(int currentLayer, int maxDensity, int minDensity)
+    {
+        currentLayer = clamp(currentLayer, 0, mWidth);
+        int x = mDepth * mHeight * currentLayer;
+        step = 255.0f / (maxDensity - minDensity);
+        layerImage.Dispose();
+        layerImage = new Bitmap(mHeight, mDepth);
+        Color color;
+        for (int z = 0; z < mDepth; z++)
+            for (int y = 0; y < mHeight; y++)
+            {
+                short currDensity = mData[y + z * mHeight + x];
+                int colorValue = (int)((currDensity - mMin) * step);
+                if (colorValue <= 0)
+                    color = Color.White;
+                else if (colorValue >= 255)
+                    color = Color.Black;
+                else
+                    color = Color.FromArgb(colorValue, colorValue, colorValue);
+
+                layerImage.SetPixel(y, z, color);
+            }
+        return layerImage;
+    }
+    private Bitmap DefenitionPlane_x_z(int currentLayer, int maxDensity, int minDensity)
+    {
+        currentLayer = clamp(currentLayer, 0, mHeight);
+        int y = mWidth * mDepth * currentLayer;
+        step = 255.0f / (maxDensity - minDensity);
+        layerImage.Dispose();
+        layerImage = new Bitmap(mWidth, mDepth);
+        Color color;
+for (int x = 0; x < mWidth; ++x)
+        for (int z = 0; z < mDepth; ++z)
+            
+            {
+                short currDensity = mData[x + z * mWidth + y];
+                int colorValue = (int)((currDensity - mMin) * step);
+                if (colorValue <= 0)
+                    color = Color.White;
+                else if (colorValue >= 255)
+                    color = Color.Black;
+                else
+                    color = Color.FromArgb(colorValue, colorValue, colorValue);
+
+                layerImage.SetPixel(x, z, color);
+            }
+        return layerImage;
+    }
+    private Bitmap CreateLayerBitmap(int currentLayer, int maxDensity, int minDensity, int plane)
+    {
+        if (plane == 1)
+            return DefenitionPlane_x_y(currentLayer, maxDensity, minDensity);
+        else if (plane == 2)
+            return DefenitionPlane_y_z(currentLayer, maxDensity, minDensity);
+        else return DefenitionPlane_x_z(currentLayer, maxDensity, minDensity);
     }
 
     void initShader(ref int shaderObj, string shaderSource, ShaderType type)
@@ -429,12 +486,12 @@ class Volume
             img = mBitmapList[currentmask];
     }
 
-    public void LoadTexture(int currentlayer, int maxDensity, int minDensity)
+    public void LoadTexture(int currentlayer, int maxDensity, int minDensity, int plane)
     {
         if (mWidth * mHeight * mDepth == 0)
             return;
 
-        mCurrentImage = CreateLayerBitmap(currentlayer, maxDensity, minDensity);
+        mCurrentImage = CreateLayerBitmap(currentlayer, maxDensity, minDensity, plane);
 
         GL.DeleteTexture(mTexIDSlice);
         GL.DeleteTexture(mTexIDMask);

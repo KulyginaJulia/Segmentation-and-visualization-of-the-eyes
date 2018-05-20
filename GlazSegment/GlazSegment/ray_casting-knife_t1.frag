@@ -108,13 +108,12 @@ vec3 IsoNormal(in vec3 arg)
 	return res/cell;
 }
 float val_in_cylinder( vec3 currentPoint){
-float flag_cyl = texture(MaskTex, currentPoint).x;
-float val = 0.0;
-if ( flag_cyl > 0.0){
-	val = texture(VolumeTex, currentPoint).x;
-}
-return val;
-
+	float flag_cyl = texture(MaskTex, currentPoint).x; 
+	float val = 0.0;
+	if ( flag_cyl == 1.0){
+		val = texture(VolumeTex, currentPoint).x;
+	}
+	return val;
 }
 
 
@@ -194,9 +193,14 @@ void main()
 					currentPoint = deltaDirLen*ray.Direction * value_step;	
 					norm = -normalize(IsoNormal(currentPoint));
 				}
+				//if ( (texture(MaskTex, vec3(currentPoint.xy , 0.0)).x > 0)){
 				colorAcum.xyz = Phong(uCamera.Position, currentPoint, norm, isoColor.xyz, LightPosition);
 				
 				colorAcum.w = val_2;
+				//}
+				//else {
+				//colorAcum = vec4(0.0, 0.0, 1.0, 1.0);
+				//}
 			
 			}
 		
