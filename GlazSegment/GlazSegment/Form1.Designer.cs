@@ -75,6 +75,11 @@
             this.AddMask = new System.Windows.Forms.Button();
             this.MaskInfo = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.button_repaint = new System.Windows.Forms.Button();
+            this.radioButton_x_z = new System.Windows.Forms.RadioButton();
+            this.radioButton_y_z = new System.Windows.Forms.RadioButton();
+            this.radiobutton_x_y = new System.Windows.Forms.RadioButton();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
@@ -94,11 +99,7 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.masks = new System.Windows.Forms.CheckedListBox();
-            this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.radioButton_y_z = new System.Windows.Forms.RadioButton();
-            this.radiobutton_x_y = new System.Windows.Forms.RadioButton();
-            this.radioButton_x_z = new System.Windows.Forms.RadioButton();
-            this.button_repaint = new System.Windows.Forms.Button();
+            this.button_to3d_plane = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.Tabs.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -107,12 +108,12 @@
             this.groupBox1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
+            this.groupBox5.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupbox.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage4.SuspendLayout();
-            this.groupBox5.SuspendLayout();
             this.SuspendLayout();
             // 
             // glControl1
@@ -430,6 +431,7 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.button_to3d_plane);
             this.tabPage2.Controls.Add(this.button_to3D);
             this.tabPage2.Controls.Add(this.radioButton_knife);
             this.tabPage2.Controls.Add(this.button2);
@@ -455,9 +457,9 @@
             // 
             this.button_to3D.Location = new System.Drawing.Point(341, 6);
             this.button_to3D.Name = "button_to3D";
-            this.button_to3D.Size = new System.Drawing.Size(75, 23);
+            this.button_to3D.Size = new System.Drawing.Size(75, 103);
             this.button_to3D.TabIndex = 13;
-            this.button_to3D.Text = "To 3D";
+            this.button_to3D.Text = "Вырезать криволинейным контуром";
             this.button_to3D.UseVisualStyleBackColor = true;
             this.button_to3D.Click += new System.EventHandler(this.button_to3D_Click);
             // 
@@ -618,6 +620,63 @@
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Вывести";
             this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // groupBox5
+            // 
+            this.groupBox5.Controls.Add(this.button_repaint);
+            this.groupBox5.Controls.Add(this.radioButton_x_z);
+            this.groupBox5.Controls.Add(this.radioButton_y_z);
+            this.groupBox5.Controls.Add(this.radiobutton_x_y);
+            this.groupBox5.Location = new System.Drawing.Point(336, 7);
+            this.groupBox5.Name = "groupBox5";
+            this.groupBox5.Size = new System.Drawing.Size(113, 121);
+            this.groupBox5.TabIndex = 8;
+            this.groupBox5.TabStop = false;
+            this.groupBox5.Text = "Плоскости";
+            // 
+            // button_repaint
+            // 
+            this.button_repaint.Location = new System.Drawing.Point(6, 86);
+            this.button_repaint.Name = "button_repaint";
+            this.button_repaint.Size = new System.Drawing.Size(101, 23);
+            this.button_repaint.TabIndex = 8;
+            this.button_repaint.Text = "Перерисовать";
+            this.button_repaint.UseVisualStyleBackColor = true;
+            this.button_repaint.Click += new System.EventHandler(this.button_repaint_Click);
+            // 
+            // radioButton_x_z
+            // 
+            this.radioButton_x_z.AutoSize = true;
+            this.radioButton_x_z.Location = new System.Drawing.Point(6, 62);
+            this.radioButton_x_z.Name = "radioButton_x_z";
+            this.radioButton_x_z.Size = new System.Drawing.Size(51, 17);
+            this.radioButton_x_z.TabIndex = 7;
+            this.radioButton_x_z.TabStop = true;
+            this.radioButton_x_z.Text = "(X, Z)";
+            this.radioButton_x_z.UseVisualStyleBackColor = true;
+            // 
+            // radioButton_y_z
+            // 
+            this.radioButton_y_z.AutoSize = true;
+            this.radioButton_y_z.Cursor = System.Windows.Forms.Cursors.Default;
+            this.radioButton_y_z.Location = new System.Drawing.Point(6, 40);
+            this.radioButton_y_z.Name = "radioButton_y_z";
+            this.radioButton_y_z.Size = new System.Drawing.Size(51, 17);
+            this.radioButton_y_z.TabIndex = 6;
+            this.radioButton_y_z.Text = "(Y, Z)";
+            this.radioButton_y_z.UseVisualStyleBackColor = true;
+            // 
+            // radiobutton_x_y
+            // 
+            this.radiobutton_x_y.AutoSize = true;
+            this.radiobutton_x_y.Checked = true;
+            this.radiobutton_x_y.Location = new System.Drawing.Point(6, 18);
+            this.radiobutton_x_y.Name = "radiobutton_x_y";
+            this.radiobutton_x_y.Size = new System.Drawing.Size(51, 17);
+            this.radiobutton_x_y.TabIndex = 5;
+            this.radiobutton_x_y.TabStop = true;
+            this.radiobutton_x_y.Text = "(X, Y)";
+            this.radiobutton_x_y.UseVisualStyleBackColor = true;
             // 
             // groupBox4
             // 
@@ -818,62 +877,15 @@
             this.masks.TabIndex = 15;
             this.masks.SelectedIndexChanged += new System.EventHandler(this.masks_SelectedIndexChanged_1);
             // 
-            // groupBox5
+            // button_to3d_plane
             // 
-            this.groupBox5.Controls.Add(this.button_repaint);
-            this.groupBox5.Controls.Add(this.radioButton_x_z);
-            this.groupBox5.Controls.Add(this.radioButton_y_z);
-            this.groupBox5.Controls.Add(this.radiobutton_x_y);
-            this.groupBox5.Location = new System.Drawing.Point(336, 7);
-            this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(113, 121);
-            this.groupBox5.TabIndex = 8;
-            this.groupBox5.TabStop = false;
-            this.groupBox5.Text = "Плоскости";
-            // 
-            // radioButton_y_z
-            // 
-            this.radioButton_y_z.AutoSize = true;
-            this.radioButton_y_z.Cursor = System.Windows.Forms.Cursors.Default;
-            this.radioButton_y_z.Location = new System.Drawing.Point(6, 40);
-            this.radioButton_y_z.Name = "radioButton_y_z";
-            this.radioButton_y_z.Size = new System.Drawing.Size(51, 17);
-            this.radioButton_y_z.TabIndex = 6;
-            this.radioButton_y_z.Text = "(Y, Z)";
-            this.radioButton_y_z.UseVisualStyleBackColor = true;
-            // 
-            // radiobutton_x_y
-            // 
-            this.radiobutton_x_y.AutoSize = true;
-            this.radiobutton_x_y.Checked = true;
-            this.radiobutton_x_y.Location = new System.Drawing.Point(6, 18);
-            this.radiobutton_x_y.Name = "radiobutton_x_y";
-            this.radiobutton_x_y.Size = new System.Drawing.Size(51, 17);
-            this.radiobutton_x_y.TabIndex = 5;
-            this.radiobutton_x_y.TabStop = true;
-            this.radiobutton_x_y.Text = "(X, Y)";
-            this.radiobutton_x_y.UseVisualStyleBackColor = true;
-            // 
-            // radioButton_x_z
-            // 
-            this.radioButton_x_z.AutoSize = true;
-            this.radioButton_x_z.Location = new System.Drawing.Point(6, 62);
-            this.radioButton_x_z.Name = "radioButton_x_z";
-            this.radioButton_x_z.Size = new System.Drawing.Size(51, 17);
-            this.radioButton_x_z.TabIndex = 7;
-            this.radioButton_x_z.TabStop = true;
-            this.radioButton_x_z.Text = "(X, Z)";
-            this.radioButton_x_z.UseVisualStyleBackColor = true;
-            // 
-            // button_repaint
-            // 
-            this.button_repaint.Location = new System.Drawing.Point(6, 86);
-            this.button_repaint.Name = "button_repaint";
-            this.button_repaint.Size = new System.Drawing.Size(101, 23);
-            this.button_repaint.TabIndex = 8;
-            this.button_repaint.Text = "Перерисовать";
-            this.button_repaint.UseVisualStyleBackColor = true;
-            this.button_repaint.Click += new System.EventHandler(this.button_repaint_Click);
+            this.button_to3d_plane.Location = new System.Drawing.Point(422, 6);
+            this.button_to3d_plane.Name = "button_to3d_plane";
+            this.button_to3d_plane.Size = new System.Drawing.Size(75, 103);
+            this.button_to3d_plane.TabIndex = 14;
+            this.button_to3d_plane.Text = "Вырезать контур плоскостями";
+            this.button_to3d_plane.UseVisualStyleBackColor = true;
+            this.button_to3d_plane.Click += new System.EventHandler(this.button_to3d_plane_Click);
             // 
             // Form1
             // 
@@ -903,6 +915,8 @@
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
             this.tabPage3.ResumeLayout(false);
+            this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
             this.groupBox3.ResumeLayout(false);
@@ -910,8 +924,6 @@
             this.groupbox.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
             this.tabPage4.ResumeLayout(false);
-            this.groupBox5.ResumeLayout(false);
-            this.groupBox5.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -990,6 +1002,7 @@
         private System.Windows.Forms.RadioButton radioButton_y_z;
         private System.Windows.Forms.RadioButton radiobutton_x_y;
         private System.Windows.Forms.Button button_repaint;
+        private System.Windows.Forms.Button button_to3d_plane;
     }
 }
 

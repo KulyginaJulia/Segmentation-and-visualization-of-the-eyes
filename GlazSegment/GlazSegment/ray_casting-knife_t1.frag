@@ -107,11 +107,15 @@ vec3 IsoNormal(in vec3 arg)
 	res.z = texture(VolumeTex, vec3(arg.x,arg.y,arg.z-cell.z)).x - texture(VolumeTex, vec3(arg.x,arg.y,arg.z+cell.z)).x;
 	return res/cell;
 }
-float val_in_cylinder( vec3 currentPoint){
+float val_in_cylinder(out vec3 currentPoint, float  deltaDirLen, vec3 Direction, out float depth, float final){
 	float flag_cyl = texture(MaskTex, currentPoint).x; 
 	float val = 0.0;
+	while ((val == 0.0)&& (depth < final)){	
 	if ( flag_cyl == 1.0){
 		val = texture(VolumeTex, currentPoint).x;
+	}
+	currentPoint += deltaDirLen*Direction;
+	depth += deltaDirLen;
 	}
 	return val;
 }
@@ -144,8 +148,10 @@ void main()
 			exitPoint = ray.Origin + final * ray.Direction;
 			
 			final = min(final, exitPoint.z);
-			val_2 = val_in_cylinder(currentPoint);
-			// что делать?
+			if (texture(MaskTex, currentPoint).x == 0)
+				break;
+			else val_2 = texture(VolumeTex, currentPoint).x;
+			//val_2 = val_in_cylinder(currentPoint,  deltaDirLen, ray.Direction, depth, final);
 			//val_2 = texture(VolumeTex, currentPoint).x;
 			
 			currentPoint += deltaDirLen*ray.Direction;
@@ -157,8 +163,11 @@ void main()
 				for(int i = 0; ((depth <= final) &&  (i < int((100 * Z)))); i++)
 				{	
 					val_1 = val_2;
-					val_2 = val_in_cylinder(currentPoint);
-					//val_2 = texture(VolumeTex, currentPoint).x;
+					//val_2 = val_in_cylinder(currentPoint,  deltaDirLen, ray.Direction, depth, final);
+					if (texture(MaskTex, currentPoint).x == 0)
+						break;
+					else 
+					val_2 = texture(VolumeTex, currentPoint).x;
 					if(val_2 >= isoValue)	
 						break;
 					currentPoint += deltaDirLen*ray.Direction;
@@ -170,8 +179,11 @@ void main()
 				for(int i = 0; ((depth <= final) && (i < int((100* Z)))); i++ )
 				{
 					val_1 = val_2;
-					val_2 = val_in_cylinder(currentPoint);
-					//val_2 = texture(VolumeTex, currentPoint).x;
+					//val_2 = val_in_cylinder(currentPoint,  deltaDirLen, ray.Direction, depth, final);
+					if (texture(MaskTex, currentPoint).x == 0)
+						break;
+					else 
+					val_2 = texture(VolumeTex, currentPoint).x;
 					if(val_2 <= isoValue )	
 						break;
 					currentPoint += deltaDirLen*ray.Direction;
@@ -193,14 +205,15 @@ void main()
 					currentPoint = deltaDirLen*ray.Direction * value_step;	
 					norm = -normalize(IsoNormal(currentPoint));
 				}
-				//if ( (texture(MaskTex, vec3(currentPoint.xy , 0.0)).x > 0)){
+				if ( (texture(MaskTex, vec3(currentPoint.xy, 0.0)).x == 1.0)){
 				colorAcum.xyz = Phong(uCamera.Position, currentPoint, norm, isoColor.xyz, LightPosition);
 				
 				colorAcum.w = val_2;
-				//}
-				//else {
+				}
+				else {
+				break;
 				//colorAcum = vec4(0.0, 0.0, 1.0, 1.0);
-				//}
+				}
 			
 			}
 		

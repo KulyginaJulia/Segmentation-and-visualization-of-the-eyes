@@ -634,6 +634,15 @@ namespace GlazSegment
             rePaint();
         }
 
+        private void button_to3d_plane_Click(object sender, EventArgs e)
+        {
+            if (!radioButton_knife.Checked) { }
+            //CalculateContur(mypen.Color);
+            string filename = PathLeft.Text;
+            Form3 tempDialog = new Form3(Points, filename, glControl1.Width, glControl1.Height);
+            tempDialog.ShowDialog();
+        }
+
         private void masks_SelectedIndexChanged_1(object sender, EventArgs e)
         {
             mControl.ChangeMask(masks.SelectedIndex);

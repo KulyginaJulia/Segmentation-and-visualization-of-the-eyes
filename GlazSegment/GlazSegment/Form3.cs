@@ -203,23 +203,11 @@ namespace GlazSegment
                     }
               PrinttoFile(Contur_middle);
             // 3d -> 1d
-            // int l = 0;
-            //while (l < length)
-            //{
-            //for (int k = 0; k < mDepth; k++)
-            //    for (int j = 0; j < mHeight; j++)
-            //        for (int i = 0; i < mWidth; i++)
-            //        {
-            //            Contur[i + j*mWidth + k*mHeight*mWidth] = Contur_middle[i, j, k];
-
-            //        }
-            //}
-           
+           for (int k = 0; k < mDepth; k++)
                 for (int j = 0; j < mHeight; j++)
                     for (int i = 0; i < mWidth; i++) 
-                            for (int k = 0; k < mDepth; k++)
                     {
-                        Contur[k + i * mDepth + j * mWidth * mDepth] = Contur_middle[i, j, k];
+                        Contur[i + j * mWidth + k * mWidth * mHeight] = Contur_middle[i, j, k];
 
                     }
         }
@@ -241,7 +229,7 @@ namespace GlazSegment
                     {
                         for (int i = 0; i < mWidth; i++)
                         {
-                            file.Write(Contur_middle[i, j, 0].ToString());
+                            file.Write(Contur_middle[i, j, 1].ToString());
                         }
                         file.WriteLine();
                     }

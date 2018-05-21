@@ -158,7 +158,6 @@ class Volume
     }
     private Bitmap CreateLayerBitmap(int currentLayer, int maxDensity, int minDensity, int plane)
     {
-        Transform();
         if (plane == 1)
             return DefenitionPlane_x_y(currentLayer, maxDensity, minDensity);
         else if (plane == 2)
@@ -306,7 +305,7 @@ class Volume
 
                 //MirroringMap();
                 mCurrentImage = new Bitmap(mWidth, mHeight);
-
+                Transform();
                 reader.Close();
                 return true;
             }
