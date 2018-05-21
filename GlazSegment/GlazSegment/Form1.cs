@@ -113,7 +113,7 @@ namespace GlazSegment
             {
                 plane = 1;
             }
-            else if ((!radiobutton_x_y.Checked) && (radioButton_x_z.Checked) && (!radioButton_y_z.Checked))
+            else if ((!radiobutton_x_y.Checked) && (!radioButton_x_z.Checked) && (radioButton_y_z.Checked))
             {
                 plane = 2;
             }
@@ -623,7 +623,7 @@ namespace GlazSegment
             {
                 plane = 1;
             }
-            else if ((!radiobutton_x_y.Checked) && (radioButton_x_z.Checked) && (!radioButton_y_z.Checked))
+            else if ((!radiobutton_x_y.Checked) && (!radioButton_x_z.Checked) && (radioButton_y_z.Checked))
             {
                 plane = 2;
             }

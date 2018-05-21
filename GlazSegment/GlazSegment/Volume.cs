@@ -78,7 +78,7 @@ class Volume
     private Bitmap DefenitionPlane_x_y(int currentLayer, int maxDensity, int minDensity)
     {
         currentLayer = clamp(currentLayer, 0, mDepth);
-        int z = mWidth * mHeight * currentLayer;
+        // int z = mWidth * mHeight * currentLayer;
         step = 255.0f / (maxDensity - minDensity);
         layerImage.Dispose();
         layerImage = new Bitmap(mWidth, mHeight);
@@ -86,7 +86,8 @@ class Volume
         for (int y = 0; y < mHeight; y++)
             for (int x = 0; x < mWidth; x++)
             {
-                short currDensity = mData[x + y * mWidth + z];
+                // short currDensity = mData[x + y * mWidth + z];
+                float currDensity = data[x, y, currentLayer];
                 int colorValue = (int)((currDensity - mMin) * step);
                 if (colorValue <= 0)
                     color = Color.White;
@@ -102,7 +103,7 @@ class Volume
     private Bitmap DefenitionPlane_y_z(int currentLayer, int maxDensity, int minDensity)
     {
         currentLayer = clamp(currentLayer, 0, mWidth);
-        int x = mDepth * mHeight * currentLayer;
+        // int x = mDepth * mHeight * currentLayer;
         step = 255.0f / (maxDensity - minDensity);
         layerImage.Dispose();
         layerImage = new Bitmap(mHeight, mDepth);
@@ -110,7 +111,7 @@ class Volume
         for (int z = 0; z < mDepth; z++)
             for (int y = 0; y < mHeight; y++)
             {
-                short currDensity = mData[y + z * mHeight + x];
+                float currDensity = data[currentLayer, y, z];
                 int colorValue = (int)((currDensity - mMin) * step);
                 if (colorValue <= 0)
                     color = Color.White;
@@ -123,19 +124,26 @@ class Volume
             }
         return layerImage;
     }
+    float[,,] data;
+    private void Transform()
+    {
+        data = new float[mWidth, mHeight, mDepth];
+        for (int z = 0; z < mDepth; z++)
+            for (int y = 0; y < mHeight; y++)
+                for (int x = 0; x < mWidth; x++)
+                    data[x, y, z] = mData[x + y * mWidth + z * mWidth * mHeight];
+    }
     private Bitmap DefenitionPlane_x_z(int currentLayer, int maxDensity, int minDensity)
     {
         currentLayer = clamp(currentLayer, 0, mHeight);
-        int y = mWidth * mDepth * currentLayer;
         step = 255.0f / (maxDensity - minDensity);
         layerImage.Dispose();
         layerImage = new Bitmap(mWidth, mDepth);
         Color color;
-for (int x = 0; x < mWidth; ++x)
-        for (int z = 0; z < mDepth; ++z)
-            
+        for (int z = 0; z < mDepth; z++)
+            for (int x = 0; x < mWidth; x++)
             {
-                short currDensity = mData[x + z * mWidth + y];
+                float currDensity = data[x, currentLayer, z];//mData[x + z * mWidth + y];
                 int colorValue = (int)((currDensity - mMin) * step);
                 if (colorValue <= 0)
                     color = Color.White;
@@ -150,6 +158,7 @@ for (int x = 0; x < mWidth; ++x)
     }
     private Bitmap CreateLayerBitmap(int currentLayer, int maxDensity, int minDensity, int plane)
     {
+        Transform();
         if (plane == 1)
             return DefenitionPlane_x_y(currentLayer, maxDensity, minDensity);
         else if (plane == 2)
@@ -293,15 +302,12 @@ for (int x = 0; x < mWidth; ++x)
 
                 mMin = mData.Min();
                 mMax = mData.Max();
-
                 mStep = mMax / 255;
 
                 //MirroringMap();
                 mCurrentImage = new Bitmap(mWidth, mHeight);
 
                 reader.Close();
-
-
                 return true;
             }
             catch (Exception)
