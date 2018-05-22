@@ -52,7 +52,7 @@ namespace GlazSegment
         int FrameCount;
         public float Volume;
         DateTime NextFPSUpdate = DateTime.Now.AddSeconds(1);
-        public Shaders m; 
+        public Shaders m;
         public float[] array2;
         public int arraySize;
         bool flag = false;
@@ -69,7 +69,9 @@ namespace GlazSegment
         public static int count;
         public int norma;
         public List<Point_v> fi = new List<Point_v>();
-        public string filepathtosh = "..//..//ray_casting.frag";
+        public string filepathtosh_1 = "..//..//ray_casting.frag";
+        public List<Point> Points = new List<Point>();
+        public int sh = 0;
         //**Functions**//
 
         void displayFPS()
@@ -87,7 +89,9 @@ namespace GlazSegment
         {
             Console.WriteLine(m.glslVersion);
             Console.WriteLine(m.glVersion);
-            m.InitShaders(cam, interval_1, color1, false, filepathtosh);
+            if (sh == 1)
+                m.InitShaders(cam, interval_1, color1, false, filepathtosh_1);
+            else m.InitShaders(cam, interval_1, color1, false, filepathtosh_2);
 
             GL.Viewport(0, 0, glControl1.Width, glControl1.Height);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -107,9 +111,9 @@ namespace GlazSegment
 
             GL.UseProgram(0);
         }
-        
+
         //**Calls in the form2**//
-        public Form2()
+        public Form2(int sh)
         {
             cam = new Camera();
             cam.camera_pos = new Vector3(0, 0, -1);
@@ -131,6 +135,165 @@ namespace GlazSegment
                 Title = "Плотность"
             });
             cartesianChart1.Zoom = ZoomingOptions.Xy;
+            this.sh = sh;
+        }
+        public int width, height;
+        public string filepathtosh_2 = "..//..//ray_casting-knife_t1.frag";
+        public string Filename;
+        public int mWidth, mHeight, mDepth;
+        public float mXScale, mYScale, mZScale;
+        public float[] Contur;
+        public Form2(List<Point> P, string filename, int width, int height, int sh)
+        {
+            cam = new Camera();
+            cam.camera_pos = new Vector3(0, 0, -1);
+            cam.camera_view = new Vector3(0, 0, 1);
+            cam.camera_up = new Vector3(0, 1, 0);
+            cam.camera_side = new Vector3(1, 0, 0);
+            interval_1 = new Vector2(1592, 2175);
+            color1 = new Vector3(1, 1, 1);
+            Points = P;
+            this.width = width;
+            this.height = height;
+            Filename = filename;
+            LoadData(filename);
+            ConturToArray();
+            flag = true;
+            this.sh = sh;
+            InitializeComponent();
+            glControl1.Invalidate();
+        }
+        public void ConturToArray()
+        {
+            int length = mWidth * mHeight * mDepth;
+
+            Contur = new float[length];
+            float[,,] Contur_middle = new float[mWidth, mHeight, mDepth];
+            for (int i = 0; i < mWidth; i++)
+                for (int j = 0; j < mHeight; j++)
+                    for (int k = 0; k < mDepth; k++)
+                        Contur_middle[i, j, k] = 0;
+            for (int i = 0; i < length; i++)
+            {
+                Contur[i] = 0;
+            }
+            foreach (Point p in Points)
+            {
+                int X_new = p.X * mWidth / width;
+                int Y_new = p.Y * mHeight / height;
+                for (int k = 0; k < mDepth; k++)
+                {
+                    Contur_middle[X_new, Y_new, k] = 1;
+                }
+            }
+            //распечатать контур в файл
+          //  PrinttoFile(Contur_middle);
+            // Заполняем внутренность
+            int cou = 0;
+            for (int z = 0; z < mDepth; z++)
+                for (int j = 0; j < mHeight; j++)
+                    for (int i = 0; i < mWidth; i++)
+                    {
+                        if (Contur_middle[i, j, z] != 0)
+                        {
+                            if (Contur_middle[i + 1, j, z] != 0)
+                            {
+                                i += 2;
+                            }
+                            else i++;
+                            cou = i;
+                            while ((i < mWidth))
+                            {
+                                if ((Contur_middle[i, j, z] == 0))
+                                    i++;
+                                else break;
+                            }
+                            if (i == mWidth)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                for (int k = cou; k < i; k++)
+                                {
+                                    Contur_middle[k, j, z] = 1;
+                                }
+                            }
+                        }
+                    }
+           // PrinttoFile(Contur_middle);
+            // 3d -> 1d
+            for (int k = 0; k < mDepth; k++)
+                for (int j = 0; j < mHeight; j++)
+                    for (int i = 0; i < mWidth; i++)
+                    {
+                        Contur[i + j * mWidth + k * mWidth * mHeight] = Contur_middle[i, j, k];
+
+                    }
+        }
+        public void PrinttoFile(float[,,] Contur_middle)
+        {
+            Stream myStream;
+            SaveFileDialog savefile = new SaveFileDialog();
+            savefile.Filter = "txt files (*.txt)|*.txt|All files (*.*|*.*";
+            savefile.FilterIndex = 1;
+            savefile.RestoreDirectory = true;
+
+            if (savefile.ShowDialog() == DialogResult.OK)
+            {
+                if ((myStream = savefile.OpenFile()) != null)
+                {
+                    myStream.Close();
+                    System.IO.StreamWriter file = new System.IO.StreamWriter(savefile.FileName);
+                    for (int j = 0; j < mHeight; j++)
+                    {
+                        for (int i = 0; i < mWidth; i++)
+                        {
+                            file.Write(Contur_middle[i, j, 1].ToString());
+                        }
+                        file.WriteLine();
+                    }
+
+
+                    file.WriteLine("==================================================================");
+                    file.WriteLine("==================================================================");
+                    file.WriteLine("==================================================================");
+                    file.WriteLine("END");
+                    file.Close();
+                }
+            }
+        }
+        public bool LoadData(string fileName)
+        {
+            if (File.Exists(fileName))
+            {
+                try
+                {
+                    BinaryReader reader = new BinaryReader(File.Open(fileName, FileMode.Open));
+
+                    mWidth = reader.ReadInt32();
+                    mHeight = reader.ReadInt32();
+                    mDepth = reader.ReadInt32();
+
+                    mXScale = reader.ReadSingle();
+                    mYScale = reader.ReadSingle();
+                    mZScale = reader.ReadSingle();
+
+                    int length = mWidth * mHeight * mDepth;
+
+                    reader.Close();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                MessageBox.Show("File was not reader" + fileName);
+                return false;
+            }
 
         }
         private void button_build_Click(object sender, EventArgs e)
@@ -154,7 +317,7 @@ namespace GlazSegment
                 PointGeometrySize = 5
             });
         }
-   
+
         public void calculate_frequency(float[] data, int count)
         {
             int i = 0, f = 1;
@@ -196,7 +359,7 @@ namespace GlazSegment
 
             }
         }
-        
+
         private void glControl1_Paint(object sender, PaintEventArgs e)
         {
             if (flag == true)
@@ -212,10 +375,10 @@ namespace GlazSegment
         {
             if (glControl1.Enabled == true)
                 while (glControl1.IsIdle)
-            {
-                displayFPS();
-                glControl1.Invalidate();
-            }
+                {
+                    displayFPS();
+                    glControl1.Invalidate();
+                }
         }
 
         private void Form2_Load(object sender, EventArgs e)
@@ -268,7 +431,7 @@ namespace GlazSegment
             label2.Text = "Дисперсия = " + Dispers;
             label3.Text = "Среднеквадратичное отклонение = " + G;
         }
-     
+
         private void cartesianChart1_DataClick(object sender, LiveCharts.ChartPoint p)
         {
             count++;

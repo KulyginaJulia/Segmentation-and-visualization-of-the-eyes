@@ -78,7 +78,6 @@ class Volume
     private Bitmap DefenitionPlane_x_y(int currentLayer, int maxDensity, int minDensity)
     {
         currentLayer = clamp(currentLayer, 0, mDepth);
-        // int z = mWidth * mHeight * currentLayer;
         step = 255.0f / (maxDensity - minDensity);
         layerImage.Dispose();
         layerImage = new Bitmap(mWidth, mHeight);
@@ -86,7 +85,6 @@ class Volume
         for (int y = 0; y < mHeight; y++)
             for (int x = 0; x < mWidth; x++)
             {
-                // short currDensity = mData[x + y * mWidth + z];
                 float currDensity = data[x, y, currentLayer];
                 int colorValue = (int)((currDensity - mMin) * step);
                 if (colorValue <= 0)
@@ -103,7 +101,6 @@ class Volume
     private Bitmap DefenitionPlane_y_z(int currentLayer, int maxDensity, int minDensity)
     {
         currentLayer = clamp(currentLayer, 0, mWidth);
-        // int x = mDepth * mHeight * currentLayer;
         step = 255.0f / (maxDensity - minDensity);
         layerImage.Dispose();
         layerImage = new Bitmap(mHeight, mDepth);
@@ -143,7 +140,7 @@ class Volume
         for (int z = 0; z < mDepth; z++)
             for (int x = 0; x < mWidth; x++)
             {
-                float currDensity = data[x, currentLayer, z];//mData[x + z * mWidth + y];
+                float currDensity = data[x, currentLayer, z];
                 int colorValue = (int)((currDensity - mMin) * step);
                 if (colorValue <= 0)
                     color = Color.White;

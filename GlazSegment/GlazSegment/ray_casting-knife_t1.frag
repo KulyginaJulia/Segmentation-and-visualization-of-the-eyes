@@ -16,8 +16,6 @@ uniform vec3 view;
 uniform vec3 up;
 uniform vec3 side;
 uniform vec3 cell_size;
-uniform float maxDen;
-uniform float minDen;
 uniform vec3 color;
 uniform float iso_value;
 uniform float flag_mask;
@@ -85,11 +83,9 @@ bool IntersectBox ( SRay ray, out float start, out float final )
 {
 	vec3 minimum = vec3(0.0);
 	vec3 maximum = vec3(X*cell_size.x, Y*cell_size.y, Z*cell_size.z);
-	maximum.x = clamp(maximum.x , 0.0, 2.0);
-	maximum.y = clamp(maximum.y , 0.0, 2.0);
-	maximum.z = clamp(maximum.z , 0.0, 2.0);
-	if ((ray.Origin.z >= 1.0) || (ray.Origin.z <= 0.0))
-			return false;
+	maximum.x = clamp(maximum.x , 0.0, 1.0);
+	maximum.y = clamp(maximum.y , 0.0, 1.0);
+	maximum.z = clamp(maximum.z , 0.0, 1.0);
 	vec3 OMAX = ( minimum - ray.Origin ) / ray.Direction;
 	vec3 OMIN = ( maximum - ray.Origin ) / ray.Direction;
 	vec3 MAX = max ( OMAX, OMIN );
@@ -106,18 +102,6 @@ vec3 IsoNormal(in vec3 arg)
 	res.y = texture(VolumeTex, vec3(arg.x,arg.y-cell.y,arg.z)).x - texture(VolumeTex, vec3(arg.x,arg.y+cell.y,arg.z)).x;
 	res.z = texture(VolumeTex, vec3(arg.x,arg.y,arg.z-cell.z)).x - texture(VolumeTex, vec3(arg.x,arg.y,arg.z+cell.z)).x;
 	return res/cell;
-}
-float val_in_cylinder(out vec3 currentPoint, float  deltaDirLen, vec3 Direction, out float depth, float final){
-	float flag_cyl = texture(MaskTex, currentPoint).x; 
-	float val = 0.0;
-	while ((val == 0.0)&& (depth < final)){	
-	if ( flag_cyl == 1.0){
-		val = texture(VolumeTex, currentPoint).x;
-	}
-	currentPoint += deltaDirLen*Direction;
-	depth += deltaDirLen;
-	}
-	return val;
 }
 
 
@@ -136,91 +120,53 @@ void main()
 	vec4 colorAcum = vec4(0.0);
 	float isoValue =  iso_value;
 	vec4 isoColor = vec4(color, 1.0);
-	float val_1 = 0.0, final, start, val_2 = 0.0;
+	float rightDensityValue = 0.0;
+	float final = 100.0;
+	float start;
+	float leftDensityValue = 0.0;
 	vec3 currentPoint = ray.Origin;
-	float depth = 0;
-	
-	for (int i = 0; i < int((100* Z)); i++)
-	{
-		SRay currentRay = SRay(currentPoint, ray.Direction);
-		if(IntersectBox(currentRay, start, final))
+	SRay currentRay = SRay(currentPoint, ray.Direction);
+		if(IntersectBox (currentRay, start, final))
 		{
-			exitPoint = ray.Origin + final * ray.Direction;
-			
-			final = min(final, exitPoint.z);
-			if (texture(MaskTex, currentPoint).x == 0)
-				break;
-			else val_2 = texture(VolumeTex, currentPoint).x;
-			//val_2 = val_in_cylinder(currentPoint,  deltaDirLen, ray.Direction, depth, final);
-			//val_2 = texture(VolumeTex, currentPoint).x;
-			
-			currentPoint += deltaDirLen*ray.Direction;
-			depth +=  deltaDirLen;
-			
-			
-			if(val_2 <= isoValue)
+			for (float i = start; i < final; i = i + deltaDirLen)
 			{
-				for(int i = 0; ((depth <= final) &&  (i < int((100 * Z)))); i++)
-				{	
-					val_1 = val_2;
-					//val_2 = val_in_cylinder(currentPoint,  deltaDirLen, ray.Direction, depth, final);
-					if (texture(MaskTex, currentPoint).x == 0)
-						break;
-					else 
-					val_2 = texture(VolumeTex, currentPoint).x;
-					if(val_2 >= isoValue)	
-						break;
-					currentPoint += deltaDirLen*ray.Direction;
-					depth +=  deltaDirLen;
-				}
-			}
-			else
-			{
-				for(int i = 0; ((depth <= final) && (i < int((100* Z)))); i++ )
-				{
-					val_1 = val_2;
-					//val_2 = val_in_cylinder(currentPoint,  deltaDirLen, ray.Direction, depth, final);
-					if (texture(MaskTex, currentPoint).x == 0)
-						break;
-					else 
-					val_2 = texture(VolumeTex, currentPoint).x;
-					if(val_2 <= isoValue )	
-						break;
-					currentPoint += deltaDirLen*ray.Direction;
-					depth +=  deltaDirLen;
-				}
-			}
-			if (depth <= final){
-				float value_step = ((isoValue-val_2)/(val_2-val_1));
-				//value_step = minDen + value_step*(maxDen - minDen);
-				if((val_2 > isoValue) && (val_1 <= isoValue))	//((val_2 >= min_bound) && (val_2 < max_bound ))
-				{
-					isoColor.xyz = level_color1;
-					currentPoint += deltaDirLen*ray.Direction* value_step;	
-					norm = normalize(IsoNormal(currentPoint));
-				}
-				else
-				{
-					isoColor.xyz = level_color2;
-					currentPoint = deltaDirLen*ray.Direction * value_step;	
-					norm = -normalize(IsoNormal(currentPoint));
-				}
-				if ( (texture(MaskTex, vec3(currentPoint.xy, 0.0)).x == 1.0)){
-				colorAcum.xyz = Phong(uCamera.Position, currentPoint, norm, isoColor.xyz, LightPosition);
-				
-				colorAcum.w = val_2;
-				}
-				else {
-				break;
-				//colorAcum = vec4(0.0, 0.0, 1.0, 1.0);
-				}
+			currentPoint = ray.Origin + i * ray.Direction;
 			
-			}
+			// if (texture(MaskTex, currentPoint).x == 0)
+				// break;
 		
-		break;
+			leftDensityValue = texture(VolumeTex, currentPoint).x;
+
+			rightDensityValue = texture(VolumeTex, currentPoint + deltaDirLen * ray.Direction).x;
+				if (((leftDensityValue - isoValue) * (rightDensityValue - isoValue))  < 0)
+				{
+			if (i <= final){
+					if((leftDensityValue > isoValue) && (rightDensityValue <= isoValue))
+					{
+						isoColor.xyz = level_color2;
+						currentPoint += deltaDirLen*ray.Direction;
+						i++;
+						norm = -normalize(IsoNormal(currentPoint));
+					}
+					else
+					{
+						isoColor.xyz = level_color1;
+						currentPoint += deltaDirLen*ray.Direction;
+						i++;					
+						norm = normalize(IsoNormal(currentPoint));
+					}
+					colorAcum.xyz = Phong(uCamera.Position, currentPoint, norm, isoColor.xyz, LightPosition);
+				//colorAcum.xyz = Phong2(currentPoint, norm, isoColor.xyz, LightPosition, uCamera.Position);
+				
+					colorAcum.w = leftDensityValue;
+				
+			//colorAcum = vec4(0.0, 0.0, 1.0, 1.0);	
+				
+				}
+					break;
+				}
+			}
 		}
-		currentPoint += deltaDirLen*ray.Direction;
-	}
 
 	FragColor = colorAcum;
 }

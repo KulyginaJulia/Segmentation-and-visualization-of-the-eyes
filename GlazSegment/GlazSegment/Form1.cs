@@ -517,7 +517,7 @@ namespace GlazSegment
 
         private void dИзображениеToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form2 tempDialog = new Form2();
+            Form2 tempDialog = new Form2(1);
             tempDialog.ShowDialog();
         }
 
@@ -611,9 +611,8 @@ namespace GlazSegment
         {
             if (!radioButton_knife.Checked) { }
             CalculateContur(mypen.Color);
-            int Size_contur = Contur_green.Count;//Points.Count;
             string filename = PathLeft.Text;
-            Form3 tempDialog = new Form3(Contur_green, filename, glControl1.Width, glControl1.Height);
+            Form2 tempDialog = new Form2(Contur_green, filename, glControl1.Width, glControl1.Height, 2);
             tempDialog.ShowDialog();
         }
 
@@ -639,8 +638,8 @@ namespace GlazSegment
             if (!radioButton_knife.Checked) { }
             //CalculateContur(mypen.Color);
             string filename = PathLeft.Text;
-            Form3 tempDialog = new Form3(Points, filename, glControl1.Width, glControl1.Height);
-            tempDialog.ShowDialog();
+            //Form3 tempDialog = new Form3(Points, filename, glControl1.Width, glControl1.Height);
+           // tempDialog.ShowDialog();
         }
 
         private void masks_SelectedIndexChanged_1(object sender, EventArgs e)

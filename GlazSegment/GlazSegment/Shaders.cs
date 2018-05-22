@@ -158,8 +158,6 @@ namespace GlazSegment
             uniform_x = GL.GetUniformLocation(BasicProgramID, "X");
             uniform_y = GL.GetUniformLocation(BasicProgramID, "Y");
             uniform_z = GL.GetUniformLocation(BasicProgramID, "Z");
-            uniform_max = GL.GetUniformLocation(BasicProgramID, "max_den");
-            uniform_min = GL.GetUniformLocation(BasicProgramID, "min_den");
             uniform_pos = GL.GetUniformLocation(BasicProgramID, "campos");
             uniform_view = GL.GetUniformLocation(BasicProgramID, "view");
             uniform_up = GL.GetUniformLocation(BasicProgramID, "up");
@@ -167,7 +165,7 @@ namespace GlazSegment
             uniform_cell_size = GL.GetUniformLocation(BasicProgramID, "cell_size");
             uniform_color = GL.GetUniformLocation(BasicProgramID, "color");
             uniform_iso_value = GL.GetUniformLocation(BasicProgramID, "iso_value");
-            uniform_flag_mask = GL.GetUniformLocation(BasicProgramID, "flag_mask");
+            //uniform_flag_mask = GL.GetUniformLocation(BasicProgramID, "flag_mask");
             GL.GenBuffers(1, out vbo_position);
 
 
@@ -183,7 +181,7 @@ namespace GlazSegment
             GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
             GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
             GL.TexImage3D(TextureTarget.Texture3D, 0, PixelInternalFormat.Intensity, X1, Y1, Z1, 0, OpenTK.Graphics.OpenGL.PixelFormat.Luminance, PixelType.Float, array);
-            float tmp;
+           // float tmp;
 
             if (flag_of_mask == true)
             {
@@ -199,11 +197,11 @@ namespace GlazSegment
                 GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
                 GL.TexImage3D(TextureTarget.Texture3D, 0, PixelInternalFormat.Intensity, X1, Y1, Z1, 0, OpenTK.Graphics.OpenGL.PixelFormat.Luminance, PixelType.Float, mask);
 
-                tmp = 1f;
+           //     tmp = 1f;
             }
             else
             {
-                tmp = 0f;
+           //     tmp = 0f;
             }
 
             //update
@@ -226,8 +224,6 @@ namespace GlazSegment
             GL.Uniform1(uniform_x, (float)X1);
             GL.Uniform1(uniform_y, (float)Y1);
             GL.Uniform1(uniform_z, (float)Z1);
-            GL.Uniform1(uniform_max, maxDen);
-            GL.Uniform1(uniform_min, minDen);
             float max_bound = (interval_1.X - minDen) / (maxDen - minDen);
             float min_bound = (interval_1.Y - minDen) / (maxDen - minDen);
 
@@ -235,7 +231,7 @@ namespace GlazSegment
             Console.WriteLine("iso = {0} ", iso_value);
             GL.Uniform1(uniform_iso_value, iso_value);
 
-            GL.Uniform1(uniform_flag_mask, tmp);
+           // GL.Uniform1(uniform_flag_mask, tmp);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
         }
