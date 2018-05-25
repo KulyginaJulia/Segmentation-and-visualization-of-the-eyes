@@ -44,7 +44,6 @@ namespace GlazSegment
         public float VX, VY, VZ;
         public float[] array;
         public float[] mask;
-        public int uniform_flag_mask;
         public int texture;
         public int texture_mask;
         public int arraySize;
@@ -128,7 +127,7 @@ namespace GlazSegment
             GL.AttachShader(program, address);
             Console.WriteLine(GL.GetShaderInfoLog(address));
         }
-        public void InitShaders(Camera cam, Vector2 interval_1, Vector3 color1, bool flag_of_mask, string filepathtofragshader)
+        public void InitShaders(Camera cam, Vector2 interval_1, Vector3 color1, int flag_of_mask, string filepathtofragshader)
         {
             vertdata = new Vector3[] {
                             new Vector3(-1f, -1f, 0f),
@@ -150,7 +149,7 @@ namespace GlazSegment
             Console.WriteLine(GL.GetProgramInfoLog(BasicProgramID));
 
             volumeLoc = GL.GetUniformLocation(BasicProgramID, "VolumeTex");
-            if (flag_of_mask)
+            if (flag_of_mask == 2)
             {
                 mask_Loc = GL.GetUniformLocation(BasicProgramID, "MaskTex");
             }
@@ -165,7 +164,6 @@ namespace GlazSegment
             uniform_cell_size = GL.GetUniformLocation(BasicProgramID, "cell_size");
             uniform_color = GL.GetUniformLocation(BasicProgramID, "color");
             uniform_iso_value = GL.GetUniformLocation(BasicProgramID, "iso_value");
-            //uniform_flag_mask = GL.GetUniformLocation(BasicProgramID, "flag_mask");
             GL.GenBuffers(1, out vbo_position);
 
 
@@ -181,9 +179,8 @@ namespace GlazSegment
             GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
             GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
             GL.TexImage3D(TextureTarget.Texture3D, 0, PixelInternalFormat.Intensity, X1, Y1, Z1, 0, OpenTK.Graphics.OpenGL.PixelFormat.Luminance, PixelType.Float, array);
-           // float tmp;
 
-            if (flag_of_mask == true)
+            if (flag_of_mask == 2)
             {
                 texture_mask = GL.GenTexture();
                 GL.BindTexture(TextureTarget.Texture3D, texture_mask);
@@ -196,12 +193,9 @@ namespace GlazSegment
                 GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
                 GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
                 GL.TexImage3D(TextureTarget.Texture3D, 0, PixelInternalFormat.Intensity, X1, Y1, Z1, 0, OpenTK.Graphics.OpenGL.PixelFormat.Luminance, PixelType.Float, mask);
-
-           //     tmp = 1f;
             }
-            else
+            else if (flag_of_mask == 3)
             {
-           //     tmp = 0f;
             }
 
             //update
@@ -212,7 +206,7 @@ namespace GlazSegment
 
             GL.UseProgram(BasicProgramID);
             GL.Uniform1(volumeLoc, 0);
-            GL.Uniform1(mask_Loc, 0);
+            GL.Uniform1(mask_Loc, 1);
 
             GL.Uniform3(uniform_pos, cam.camera_pos);
             GL.Uniform3(uniform_side, cam.camera_side);
@@ -231,7 +225,6 @@ namespace GlazSegment
             Console.WriteLine("iso = {0} ", iso_value);
             GL.Uniform1(uniform_iso_value, iso_value);
 
-           // GL.Uniform1(uniform_flag_mask, tmp);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
         }

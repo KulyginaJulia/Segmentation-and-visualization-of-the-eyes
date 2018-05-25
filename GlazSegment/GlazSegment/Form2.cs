@@ -90,8 +90,10 @@ namespace GlazSegment
             Console.WriteLine(m.glslVersion);
             Console.WriteLine(m.glVersion);
             if (sh == 1)
-                m.InitShaders(cam, interval_1, color1, false, filepathtosh_1);
-            else m.InitShaders(cam, interval_1, color1, false, filepathtosh_2);
+                m.InitShaders(cam, interval_1, color1, 1, filepathtosh_1);
+            else if (sh == 2)
+                m.InitShaders(cam, interval_1, color1, 2, filepathtosh_2);
+            else m.InitShaders(cam, interval_1, color1, 3, filepathtosh_3);
 
             GL.Viewport(0, 0, glControl1.Width, glControl1.Height);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -99,6 +101,11 @@ namespace GlazSegment
             GL.Enable(EnableCap.CullFace);
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture3D, m.texture);
+            if (sh == 2)
+            {
+                GL.ActiveTexture(TextureUnit.Texture1);
+                GL.BindTexture(TextureTarget.Texture3D, m.texture_mask);
+            }
             GL.EnableVertexAttribArray(m.attribute_vpos);
 
             Console.WriteLine("OK");
@@ -139,6 +146,7 @@ namespace GlazSegment
         }
         public int width, height;
         public string filepathtosh_2 = "..//..//ray_casting-knife_t1.frag";
+        public string filepathtosh_3 = "..//..//ray_casting-knife_t2.frag";
         public string Filename;
         public int mWidth, mHeight, mDepth;
         public float mXScale, mYScale, mZScale;
@@ -157,9 +165,12 @@ namespace GlazSegment
             this.height = height;
             Filename = filename;
             LoadData(filename);
-            ConturToArray();
-            flag = true;
+            if (sh == 2)
+                ConturToArray();
+            else { }
+
             this.sh = sh;
+            flag = true;
             InitializeComponent();
             glControl1.Invalidate();
         }
@@ -187,7 +198,7 @@ namespace GlazSegment
                 }
             }
             //распечатать контур в файл
-          //  PrinttoFile(Contur_middle);
+            //  PrinttoFile(Contur_middle);
             // Заполняем внутренность
             int cou = 0;
             for (int z = 0; z < mDepth; z++)
@@ -221,7 +232,7 @@ namespace GlazSegment
                             }
                         }
                     }
-           // PrinttoFile(Contur_middle);
+            // PrinttoFile(Contur_middle);
             // 3d -> 1d
             for (int k = 0; k < mDepth; k++)
                 for (int j = 0; j < mHeight; j++)
@@ -230,6 +241,36 @@ namespace GlazSegment
                         Contur[i + j * mWidth + k * mWidth * mHeight] = Contur_middle[i, j, k];
 
                     }
+
+            // PrinttoFile(Contur);
+        }
+        public void PrinttoFile(float[] Contur)
+        {
+            Stream myStream;
+            SaveFileDialog savefile = new SaveFileDialog();
+            savefile.Filter = "txt files (*.txt)|*.txt|All files (*.*|*.*";
+            savefile.FilterIndex = 1;
+            savefile.RestoreDirectory = true;
+
+            if (savefile.ShowDialog() == DialogResult.OK)
+            {
+                if ((myStream = savefile.OpenFile()) != null)
+                {
+                    myStream.Close();
+                    System.IO.StreamWriter file = new System.IO.StreamWriter(savefile.FileName);
+                    for (int j = 0; j < mWidth * mHeight * mDepth; j++)
+                    {
+                        file.Write(Contur[j].ToString());
+                    }
+
+
+                    file.WriteLine("==================================================================");
+                    file.WriteLine("==================================================================");
+                    file.WriteLine("==================================================================");
+                    file.WriteLine("END");
+                    file.Close();
+                }
+            }
         }
         public void PrinttoFile(float[,,] Contur_middle)
         {
@@ -249,7 +290,7 @@ namespace GlazSegment
                     {
                         for (int i = 0; i < mWidth; i++)
                         {
-                            file.Write(Contur_middle[i, j, 1].ToString());
+                            file.Write(Contur_middle[i, j, mDepth - 1].ToString());
                         }
                         file.WriteLine();
                     }
@@ -364,7 +405,15 @@ namespace GlazSegment
         {
             if (flag == true)
             {
-                m.loadVolumeData(binaryData);
+                if (sh == 1)
+                {
+                    m.loadVolumeData(binaryData);
+                }
+                else
+                {
+                    m.loadVolumeData(Filename);
+                    m.loadVolumeMask(Contur);
+                }
                 Draw();
                 glControl1.MakeCurrent();
                 glControl1.SwapBuffers();

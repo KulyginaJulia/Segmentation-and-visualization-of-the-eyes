@@ -48,4 +48,3 @@ C:\Users\Julia\Desktop\Segmentation-and-visualization-of-the-eyes\GlazSegment\Gl
 C:\Users\Julia\Desktop\Segmentation-and-visualization-of-the-eyes\GlazSegment\GlazSegment\obj\Debug\GlazSegment.Form2.resources
 C:\Users\Julia\Desktop\Segmentation-and-visualization-of-the-eyes\GlazSegment\GlazSegment\obj\Debug\GlazSegment.Properties.Resources.resources
 C:\Users\Julia\Desktop\Segmentation-and-visualization-of-the-eyes\GlazSegment\GlazSegment\obj\Debug\GlazSegment.csproj.GenerateResource.Cache
-C:\Users\Julia\Desktop\Segmentation-and-visualization-of-the-eyes\GlazSegment\GlazSegment\obj\Debug\GlazSegment.Form3.resources

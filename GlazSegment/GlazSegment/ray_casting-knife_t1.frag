@@ -126,21 +126,20 @@ void main()
 	float leftDensityValue = 0.0;
 	vec3 currentPoint = ray.Origin;
 	SRay currentRay = SRay(currentPoint, ray.Direction);
-		if(IntersectBox (currentRay, start, final))
+	
+	if(IntersectBox (currentRay, start, final))
+	{
+		for (float i = start; i < final; i = i + deltaDirLen)
 		{
-			for (float i = start; i < final; i = i + deltaDirLen)
-			{
 			currentPoint = ray.Origin + i * ray.Direction;
-			
-			// if (texture(MaskTex, currentPoint).x == 0)
-				// break;
-		
+			if (texture(MaskTex, currentPoint).x == 0)
+				continue;
+					
 			leftDensityValue = texture(VolumeTex, currentPoint).x;
 
 			rightDensityValue = texture(VolumeTex, currentPoint + deltaDirLen * ray.Direction).x;
-				if (((leftDensityValue - isoValue) * (rightDensityValue - isoValue))  < 0)
-				{
-			if (i <= final){
+			if (((leftDensityValue - isoValue) * (rightDensityValue - isoValue))  < 0)
+			{
 					if((leftDensityValue > isoValue) && (rightDensityValue <= isoValue))
 					{
 						isoColor.xyz = level_color2;
@@ -154,17 +153,13 @@ void main()
 						currentPoint += deltaDirLen*ray.Direction;
 						i++;					
 						norm = normalize(IsoNormal(currentPoint));
-					}
-					colorAcum.xyz = Phong(uCamera.Position, currentPoint, norm, isoColor.xyz, LightPosition);
-				//colorAcum.xyz = Phong2(currentPoint, norm, isoColor.xyz, LightPosition, uCamera.Position);
-				
+					}	
+					
+					colorAcum.xyz = Phong(uCamera.Position, currentPoint, norm, isoColor.xyz, LightPosition);				
 					colorAcum.w = leftDensityValue;
-				
-			//colorAcum = vec4(0.0, 0.0, 1.0, 1.0);	
-				
-				}
-					break;
-				}
+				break;
+			}
+
 			}
 		}
 

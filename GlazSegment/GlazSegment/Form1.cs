@@ -596,7 +596,6 @@ namespace GlazSegment
             if (masks.SelectedIndex > -1)
             {
                 Bitmap mp = new Bitmap(mControl.mBitmapList[masks.SelectedIndex]);
-                //mp =  mControl.mBitmapList[masks.SelectedIndex];
                 for (int x = 0; x < mp.Width; x++)
                     for (int y = 0; y < mp.Height; y++)
                     {
@@ -636,10 +635,9 @@ namespace GlazSegment
         private void button_to3d_plane_Click(object sender, EventArgs e)
         {
             if (!radioButton_knife.Checked) { }
-            //CalculateContur(mypen.Color);
             string filename = PathLeft.Text;
-            //Form3 tempDialog = new Form3(Points, filename, glControl1.Width, glControl1.Height);
-           // tempDialog.ShowDialog();
+            Form2 tempDialog = new Form2(Points, filename, glControl1.Width, glControl1.Height, 3);
+            tempDialog.ShowDialog();
         }
 
         private void masks_SelectedIndexChanged_1(object sender, EventArgs e)
