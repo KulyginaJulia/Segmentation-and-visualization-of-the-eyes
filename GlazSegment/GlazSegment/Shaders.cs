@@ -46,9 +46,14 @@ namespace GlazSegment
         public float[] mask;
         public int texture;
         public int texture_mask;
-        public int arraySize;
+        public float iso_value;
 
         public Vector3 cell_size;
+
+        public int getSize()
+        {
+            return array.Length;
+        }
 
         public Shaders()
         {
@@ -72,16 +77,14 @@ namespace GlazSegment
                 VZ = reader.ReadSingle();
                 Console.WriteLine("{0} {1} {2}", VX, VY, VZ);
 
-                arraySize = X1 * Y1 * Z1;
+                int arraySize = X1 * Y1 * Z1;
                 array = new float[arraySize];
                 for (int i = 0; i < arraySize; ++i)
                 {
-                    array[i] = reader.ReadInt16();
-                    if (array[i] > maxDen)
-                        maxDen = array[i];
-                    if (array[i] < minDen)
-                        minDen = array[i];
+                    array[i] = (float)Convert.ChangeType(reader.ReadInt16(), typeof(float));
                 }
+                maxDen = array.Max();
+                minDen = array.Min();
                 Console.WriteLine("Read");
                 Console.WriteLine("min max");
                 Console.WriteLine("{0} {1}", minDen, maxDen);
@@ -93,26 +96,12 @@ namespace GlazSegment
         }
         public void loadVolumeData(float[] arr)
         {
-            arraySize = arr.Length;
-            array = new float[arraySize];
-            for (int i = 0; i < arraySize; ++i)
-            {
-                array[i] = arr[i];
-                if (array[i] > maxDen)
-                    maxDen = array[i];
-                if (array[i] < minDen)
-                    minDen = array[i];
-            }
+            array = arr;
             Console.WriteLine("Read");
         }
         public void loadVolumeMask(float[] arr)
         {
-            arraySize = arr.Length;
-            mask = new float[arraySize];
-            for (int i = 0; i < arraySize; ++i)
-            {
-                mask[i] = arr[i];
-            }
+            mask = arr;
             Console.WriteLine("Read");
 
         }
@@ -127,7 +116,7 @@ namespace GlazSegment
             GL.AttachShader(program, address);
             Console.WriteLine(GL.GetShaderInfoLog(address));
         }
-        public void InitShaders(Camera cam, Vector2 interval_1, Vector3 color1, int flag_of_mask, string filepathtofragshader)
+        public void InitShaders(Camera cam, float iso_value, Vector3 color1, int flag_of_mask, string filepathtofragshader)
         {
             vertdata = new Vector3[] {
                             new Vector3(-1f, -1f, 0f),
@@ -178,7 +167,7 @@ namespace GlazSegment
 
             GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
             GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
-            GL.TexImage3D(TextureTarget.Texture3D, 0, PixelInternalFormat.Intensity, X1, Y1, Z1, 0, OpenTK.Graphics.OpenGL.PixelFormat.Luminance, PixelType.Float, array);
+            GL.TexImage3D(TextureTarget.Texture3D, 0, PixelInternalFormat.R32f, X1, Y1, Z1, 0, OpenTK.Graphics.OpenGL.PixelFormat.Red, PixelType.Float, array);
 
             if (flag_of_mask == 2)
             {
@@ -192,10 +181,7 @@ namespace GlazSegment
 
                 GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
                 GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
-                GL.TexImage3D(TextureTarget.Texture3D, 0, PixelInternalFormat.Intensity, X1, Y1, Z1, 0, OpenTK.Graphics.OpenGL.PixelFormat.Luminance, PixelType.Float, mask);
-            }
-            else if (flag_of_mask == 3)
-            {
+                GL.TexImage3D(TextureTarget.Texture3D, 0, PixelInternalFormat.R32f, X1, Y1, Z1, 0, OpenTK.Graphics.OpenGL.PixelFormat.Red, PixelType.Float, mask);
             }
 
             //update
@@ -206,7 +192,8 @@ namespace GlazSegment
 
             GL.UseProgram(BasicProgramID);
             GL.Uniform1(volumeLoc, 0);
-            GL.Uniform1(mask_Loc, 1);
+            if (flag_of_mask == 2)
+                GL.Uniform1(mask_Loc, 1);
 
             GL.Uniform3(uniform_pos, cam.camera_pos);
             GL.Uniform3(uniform_side, cam.camera_side);
@@ -218,11 +205,9 @@ namespace GlazSegment
             GL.Uniform1(uniform_x, (float)X1);
             GL.Uniform1(uniform_y, (float)Y1);
             GL.Uniform1(uniform_z, (float)Z1);
-            float max_bound = (interval_1.X - minDen) / (maxDen - minDen);
-            float min_bound = (interval_1.Y - minDen) / (maxDen - minDen);
 
-            float iso_value = (max_bound + min_bound) / 2;
             Console.WriteLine("iso = {0} ", iso_value);
+            
             GL.Uniform1(uniform_iso_value, iso_value);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);

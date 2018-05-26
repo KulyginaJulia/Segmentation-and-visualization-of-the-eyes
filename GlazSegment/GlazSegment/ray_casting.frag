@@ -52,16 +52,6 @@ SRay GenerateRay (SCamera uCamera)
 	camera.Scale = vec2(1.0); 
 	return camera;
 }
-vec3 Phong2 ( vec3 point, vec3 normal, vec3 color, vec3 LightPosition, vec3 CameraPosition)
-{
-	vec3 LightDir = -normalize(point-LightPosition);
-	float diffuse = max( dot ( LightDir, normal ), 0.0);
-	vec3 reflect = reflect ( -LightDir, normal );
-	float specular = pow ( max (0.0, dot ( reflect, normalize(CameraPosition-point) ) ), P );
-	vec3 result = K_A * color;
-	result+= diffuse * ( K_D * color + K_S * specular * vec3(1.0) );
-	return result;
-}
 vec3 Phong (vec3 CameraPosition, vec3 point, vec3 normal, vec3 colorAcum, vec3 LightPosition)
 {
 	vec3 LightDir = -normalize(point - LightPosition);
@@ -81,9 +71,9 @@ bool IntersectBox ( SRay ray, out float start, out float final )
 {
 	vec3 minimum = vec3(0.0);
 	vec3 maximum = vec3(X*cell_size.x, Y*cell_size.y, Z*cell_size.z);
-	maximum.x = clamp(maximum.x , 0.0, 1.0);
-	maximum.y = clamp(maximum.y , 0.0, 1.0);
-	maximum.z = clamp(maximum.z , 0.0, 1.0);
+	// maximum.x = clamp(maximum.x , 0.0, 1.0);
+	// maximum.y = clamp(maximum.y , 0.0, 1.0);
+	// maximum.z = clamp(maximum.z , 0.0, 1.0);
 	vec3 OMAX = ( minimum - ray.Origin ) / ray.Direction;
 	vec3 OMIN = ( maximum - ray.Origin ) / ray.Direction;
 	vec3 MAX = max ( OMAX, OMIN );
@@ -101,18 +91,13 @@ vec3 IsoNormal(in vec3 arg)
 	res.z = texture(VolumeTex, vec3(arg.x,arg.y,arg.z-cell.z)).x - texture(VolumeTex, vec3(arg.x,arg.y,arg.z+cell.z)).x;
 	return res/cell;
 }
-
-
-const vec3 level_color1 = vec3(1.0);//0.5);	
-const vec3 level_color2 = vec3(0.5,0.4,0.4);	
+	
 void main()
 {	
-	vec3 exitPoint = vec3(0.5, 0.5, 0.0);
-	
 	SCamera uCamera = initializeDefaultCamera(); 
     SRay ray = GenerateRay(uCamera);  
-	vec3 LightPosition = vec3(0.0, 2.0, -1.0);
-	float deltaDirLen = 1.0 / Z;// (cell_size.z * Z);
+	vec3 LightPosition = vec3(0.0, 200.0, -100.0);
+	float deltaDirLen = 1.0 / Z;
 	
 	vec3 norm;
 	vec4 colorAcum = vec4(0.0);
@@ -124,39 +109,38 @@ void main()
 	float leftDensityValue = 0.0;
 	vec3 currentPoint = ray.Origin;
 	SRay currentRay = SRay(currentPoint, ray.Direction);
-		if(IntersectBox (currentRay, start, final))
+	vec3 TextCurrentPoint = vec3(0.0);
+	
+	if(IntersectBox (currentRay, start, final))
+	{
+
+		for (float i = start; i < final; i = i + deltaDirLen)
 		{
-			for (float i = start; i < final; i = i + deltaDirLen)
-			{
 			currentPoint = ray.Origin + i * ray.Direction;
-		
-			leftDensityValue = texture(VolumeTex, currentPoint).x;
-
-			rightDensityValue = texture(VolumeTex, currentPoint + deltaDirLen * ray.Direction).x;
-				if (((leftDensityValue - isoValue) * (rightDensityValue - isoValue))  < 0)
-				{
-			if (i <= final){
-					if((leftDensityValue > isoValue) && (rightDensityValue <= isoValue))
-					{
-						isoColor.xyz = level_color2;
-						currentPoint += deltaDirLen*ray.Direction;
-						i++;
-						norm = -normalize(IsoNormal(currentPoint));
-					}
-					else
-					{
-						isoColor.xyz = level_color1;
-						currentPoint += deltaDirLen*ray.Direction;
-						i++;					
-						norm = normalize(IsoNormal(currentPoint));
-					}
-					colorAcum.xyz = Phong(uCamera.Position, currentPoint, norm, isoColor.xyz, LightPosition);
-					colorAcum.w = leftDensityValue;
-				}
-					break;
-				}
+			TextCurrentPoint = currentPoint / vec3(X*cell_size.x, Y*cell_size.y, Z*cell_size.z); 
+			leftDensityValue = texture(VolumeTex, TextCurrentPoint).x;
+			vec3 TextCurrentPoint_temp = vec3(currentPoint + deltaDirLen * ray.Direction) / vec3(X*cell_size.x, Y*cell_size.y, Z*cell_size.z); 
+			rightDensityValue = texture(VolumeTex, TextCurrentPoint_temp).x;
+			if (((leftDensityValue - isoValue) * (rightDensityValue - isoValue))  < 0)
+			{					
+				norm = normalize(IsoNormal(TextCurrentPoint));
+				colorAcum.xyz = Phong(uCamera.Position, TextCurrentPoint, norm, isoColor.xyz, LightPosition);				
+				colorAcum.w = leftDensityValue;
+				break;
 			}
-		}
+			
+			// currentPoint = ray.Origin + i * ray.Direction;
+			// leftDensityValue = texture(VolumeTex, currentPoint).x;
+			// rightDensityValue = texture(VolumeTex, currentPoint + deltaDirLen * ray.Direction).x;
+			// if (((leftDensityValue - isoValue) * (rightDensityValue - isoValue))  < 0)
+			// {					
+				// norm = normalize(IsoNormal(currentPoint));
+				// colorAcum.xyz = Phong(uCamera.Position, currentPoint, norm, isoColor.xyz, LightPosition);				
+				// colorAcum.w = leftDensityValue;
+				// break;
+			// }
 
+		}
+}
 	FragColor = colorAcum;
 }

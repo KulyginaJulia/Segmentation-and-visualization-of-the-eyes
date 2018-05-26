@@ -85,15 +85,16 @@ namespace GlazSegment
             FrameCount++;
         }
 
+        float iso_value = 0;
+
         public void Draw()
         {
             Console.WriteLine(m.glslVersion);
             Console.WriteLine(m.glVersion);
             if (sh == 1)
-                m.InitShaders(cam, interval_1, color1, 1, filepathtosh_1);
-            else if (sh == 2)
-                m.InitShaders(cam, interval_1, color1, 2, filepathtosh_2);
-            else m.InitShaders(cam, interval_1, color1, 3, filepathtosh_3);
+                m.InitShaders(cam, iso_value, color1, 1, filepathtosh_1);
+            else
+                m.InitShaders(cam, iso_value, color1, 2, filepathtosh_2);
 
             GL.Viewport(0, 0, glControl1.Width, glControl1.Height);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -107,15 +108,8 @@ namespace GlazSegment
                 GL.BindTexture(TextureTarget.Texture3D, m.texture_mask);
             }
             GL.EnableVertexAttribArray(m.attribute_vpos);
-
-            Console.WriteLine("OK");
-
             GL.DrawArrays(PrimitiveType.Quads, 0, 4);
-            Console.WriteLine("OK");
-
             GL.DisableVertexAttribArray(m.attribute_vpos);
-            Console.WriteLine("OK");
-
             GL.UseProgram(0);
         }
 
@@ -123,8 +117,8 @@ namespace GlazSegment
         public Form2(int sh)
         {
             cam = new Camera();
-            cam.camera_pos = new Vector3(0, 0, -1);
-            cam.camera_view = new Vector3(0, 0, 1);
+            cam.camera_pos = new Vector3(0, 50, -50);
+            cam.camera_view = new Vector3(0, -1, 1);
             cam.camera_up = new Vector3(0, 1, 0);
             cam.camera_side = new Vector3(1, 0, 0);
             interval_1 = new Vector2(1592, 2175);
@@ -132,7 +126,6 @@ namespace GlazSegment
 
             InitializeComponent();
             glControl1.Invalidate();
-            File.Delete("Writelines.txt");
             cartesianChart1.AxisY.Add(new Axis
             {
                 Title = "Количество пикселей",
@@ -146,7 +139,6 @@ namespace GlazSegment
         }
         public int width, height;
         public string filepathtosh_2 = "..//..//ray_casting-knife_t1.frag";
-        public string filepathtosh_3 = "..//..//ray_casting-knife_t2.frag";
         public string Filename;
         public int mWidth, mHeight, mDepth;
         public float mXScale, mYScale, mZScale;
@@ -165,9 +157,7 @@ namespace GlazSegment
             this.height = height;
             Filename = filename;
             LoadData(filename);
-            if (sh == 2)
-                ConturToArray();
-            else { }
+            ConturToArray();
 
             this.sh = sh;
             flag = true;
@@ -197,8 +187,6 @@ namespace GlazSegment
                     Contur_middle[X_new, Y_new, k] = 1;
                 }
             }
-            //распечатать контур в файл
-            //  PrinttoFile(Contur_middle);
             // Заполняем внутренность
             int cou = 0;
             for (int z = 0; z < mDepth; z++)
@@ -232,7 +220,6 @@ namespace GlazSegment
                             }
                         }
                     }
-            // PrinttoFile(Contur_middle);
             // 3d -> 1d
             for (int k = 0; k < mDepth; k++)
                 for (int j = 0; j < mHeight; j++)
@@ -241,69 +228,8 @@ namespace GlazSegment
                         Contur[i + j * mWidth + k * mWidth * mHeight] = Contur_middle[i, j, k];
 
                     }
-
-            // PrinttoFile(Contur);
         }
-        public void PrinttoFile(float[] Contur)
-        {
-            Stream myStream;
-            SaveFileDialog savefile = new SaveFileDialog();
-            savefile.Filter = "txt files (*.txt)|*.txt|All files (*.*|*.*";
-            savefile.FilterIndex = 1;
-            savefile.RestoreDirectory = true;
-
-            if (savefile.ShowDialog() == DialogResult.OK)
-            {
-                if ((myStream = savefile.OpenFile()) != null)
-                {
-                    myStream.Close();
-                    System.IO.StreamWriter file = new System.IO.StreamWriter(savefile.FileName);
-                    for (int j = 0; j < mWidth * mHeight * mDepth; j++)
-                    {
-                        file.Write(Contur[j].ToString());
-                    }
-
-
-                    file.WriteLine("==================================================================");
-                    file.WriteLine("==================================================================");
-                    file.WriteLine("==================================================================");
-                    file.WriteLine("END");
-                    file.Close();
-                }
-            }
-        }
-        public void PrinttoFile(float[,,] Contur_middle)
-        {
-            Stream myStream;
-            SaveFileDialog savefile = new SaveFileDialog();
-            savefile.Filter = "txt files (*.txt)|*.txt|All files (*.*|*.*";
-            savefile.FilterIndex = 1;
-            savefile.RestoreDirectory = true;
-
-            if (savefile.ShowDialog() == DialogResult.OK)
-            {
-                if ((myStream = savefile.OpenFile()) != null)
-                {
-                    myStream.Close();
-                    System.IO.StreamWriter file = new System.IO.StreamWriter(savefile.FileName);
-                    for (int j = 0; j < mHeight; j++)
-                    {
-                        for (int i = 0; i < mWidth; i++)
-                        {
-                            file.Write(Contur_middle[i, j, mDepth - 1].ToString());
-                        }
-                        file.WriteLine();
-                    }
-
-
-                    file.WriteLine("==================================================================");
-                    file.WriteLine("==================================================================");
-                    file.WriteLine("==================================================================");
-                    file.WriteLine("END");
-                    file.Close();
-                }
-            }
-        }
+       
         public bool LoadData(string fileName)
         {
             if (File.Exists(fileName))
@@ -339,12 +265,11 @@ namespace GlazSegment
         }
         private void button_build_Click(object sender, EventArgs e)
         {
-
             Volume = m.VX * m.VY * m.VZ;
             Console.WriteLine(Volume);
-            array2 = new float[m.arraySize];
+            array2 = new float[m.getSize()];
             Array.Sort(m.array);
-            arraySize = m.arraySize;
+            arraySize = m.getSize();
             Array.Copy(m.array, array2, arraySize);
 
             calculate_frequency(array2, arraySize);
@@ -404,16 +329,7 @@ namespace GlazSegment
         private void glControl1_Paint(object sender, PaintEventArgs e)
         {
             if (flag == true)
-            {
-                if (sh == 1)
-                {
-                    m.loadVolumeData(binaryData);
-                }
-                else
-                {
-                    m.loadVolumeData(Filename);
-                    m.loadVolumeMask(Contur);
-                }
+            {  
                 Draw();
                 glControl1.MakeCurrent();
                 glControl1.SwapBuffers();
@@ -453,13 +369,37 @@ namespace GlazSegment
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 binaryData = dialog.FileName;
+
+                m = new Shaders();
+
+                if (sh == 1)
+                {
+                    m.loadVolumeData(binaryData);
+
+                }
+                else
+                {
+                    m.loadVolumeData(Filename);
+                    m.loadVolumeMask(Contur);
+                }
+
+                label_min.Text = m.array.Min().ToString();
+                label_max.Text = m.array.Max().ToString();
+                label_isoVal1.Text = ((m.array.Min() + m.array.Max()) / 2).ToString();
+                hScrollBar1.Minimum = int.Parse(label_min.Text);
+                hScrollBar1.Maximum = int.Parse(label_max.Text);
                 flag = true;
             }
         }
 
+        private void hScrollBar1_Scroll(object sender, ScrollEventArgs e)
+        {
+            iso_value = hScrollBar1.Value;
+            label_isoVal1.Text = iso_value.ToString();
+        }
+
         private void glControl1_Load(object sender, EventArgs e)
         {
-            m = new Shaders();
             this.DoubleBuffered = true;
         }
 
@@ -495,9 +435,9 @@ namespace GlazSegment
                 textBox2.Text = Convert.ToString(p.X);
                 interval_1.Y = Convert.ToInt16(p.X);
             }
-            color1.X = textBox3.BackColor.R / 255;
-            color1.Y = textBox3.BackColor.G / 255;
-            color1.Z = textBox3.BackColor.B / 255;
+            //color1.X = textBox3.BackColor.R / 255;
+            //color1.Y = textBox3.BackColor.G / 255;
+            //color1.Z = textBox3.BackColor.B / 255;
         }
 
         private void glControl1_KeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
@@ -547,10 +487,14 @@ namespace GlazSegment
             ColorDialog MyDialog = new ColorDialog();
             MyDialog.AllowFullOpen = false;
             MyDialog.ShowHelp = true;
-            MyDialog.Color = textBox3.BackColor;
+            MyDialog.Color = label4.BackColor; //textBox3.BackColor;
             if (MyDialog.ShowDialog() == DialogResult.OK)
-                textBox3.BackColor = MyDialog.Color;
+                label4.BackColor = MyDialog.Color;
+            color1.X = label4.BackColor.R / 255;
+            color1.Y = label4.BackColor.G / 255;
+            color1.Z = label4.BackColor.B / 255;
             count = 0;
+            
         }
     }
 }

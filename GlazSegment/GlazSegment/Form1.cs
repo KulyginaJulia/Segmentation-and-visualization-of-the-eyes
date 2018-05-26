@@ -551,9 +551,9 @@ namespace GlazSegment
             {
                 Point P = PointToScreen(new Point(glControl1.Bounds.Left, glControl1.Bounds.Top));
                 double Ox = (double)(mControl.mBitmapList[masks.SelectedIndex].Width / 350.0),
-                       Oy = (double)(mControl.mBitmapList[masks.SelectedIndex].Height / 350.0);
+                           Oy = (double)(mControl.mBitmapList[masks.SelectedIndex].Height / 350.0);
 
-
+                
                 if (e.Button == MouseButtons.Left)
                 {
 
@@ -610,8 +610,18 @@ namespace GlazSegment
         {
             if (!radioButton_knife.Checked) { }
             CalculateContur(mypen.Color);
-            string filename = PathLeft.Text;
-            Form2 tempDialog = new Form2(Contur_green, filename, glControl1.Width, glControl1.Height, 2);
+            string filename;
+            Form2 tempDialog;
+            if ((rrright.Checked) && (!rrleft.Checked))
+            {
+                filename = PathLeft.Text;
+                tempDialog = new Form2(Contur_green, filename, glControl1.Width, glControl1.Height, 2);
+            }
+            else
+            {
+                filename = PathRight.Text;
+                tempDialog = new Form2(Contur_green, filename, glControl2.Width, glControl2.Height, 2);
+            }
             tempDialog.ShowDialog();
         }
 
@@ -638,6 +648,55 @@ namespace GlazSegment
             string filename = PathLeft.Text;
             Form2 tempDialog = new Form2(Points, filename, glControl1.Width, glControl1.Height, 3);
             tempDialog.ShowDialog();
+        }
+
+        private void glControl2_MouseMove(object sender, MouseEventArgs e)
+        {
+            int count = 0;
+            Point Ps = new Point();
+            Point Pf = new Point();
+
+            if ((radioButton_knife.Checked) && (masks.SelectedIndex > -1))
+            {
+                Point P = PointToScreen(new Point(glControl2.Bounds.Left, glControl2.Bounds.Top));
+                double Ox = (double)(mControl.mBitmapList[masks.SelectedIndex].Width / 350.0),
+                           Oy = (double)(mControl.mBitmapList[masks.SelectedIndex].Height / 350.0);
+
+
+                if (e.Button == MouseButtons.Left)
+                {
+
+                    Pen mypen_ = new Pen(Color.Blue, 1);
+                    Brush fillBrush = new SolidBrush(Color.Blue);
+                    Graphics g2 = Graphics.FromImage(mControl.mBitmapList[masks.SelectedIndex]);
+                    g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                    int size = 1;
+                    Point startPoint = new Point();
+                    startPoint.X = Convert.ToInt32((Cursor.Position.X - P.X) * Ox);
+                    startPoint.Y = Convert.ToInt32((Cursor.Position.Y - P.Y) * Oy);
+
+                    Points.Add(startPoint);
+                    Rectangle rectangle = new Rectangle(startPoint.X - (size / 2), startPoint.Y - (size / 2), size, size);
+                    if (count == 0) { Ps = startPoint; }
+                    count++;
+                    g2.FillEllipse(fillBrush, rectangle);
+                    g2.DrawEllipse(mypen_, rectangle);
+                    g2.Dispose();
+                    rePaint();
+                    Pf = startPoint;
+                }
+                else if (Points.Count > 2)
+                {
+                    Graphics g2 = Graphics.FromImage(mControl.mBitmapList[masks.SelectedIndex]);
+                    g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                    g2.DrawClosedCurve(mypen, Points.ToArray());
+
+                    g2.Dispose();
+                    rePaint();
+
+
+                }
+            }
         }
 
         private void masks_SelectedIndexChanged_1(object sender, EventArgs e)

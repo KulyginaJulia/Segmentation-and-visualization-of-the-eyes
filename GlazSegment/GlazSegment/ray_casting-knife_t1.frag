@@ -108,9 +108,7 @@ vec3 IsoNormal(in vec3 arg)
 const vec3 level_color1 = vec3(1.0);//0.5);	
 const vec3 level_color2 = vec3(0.5,0.4,0.4);	
 void main()
-{	
-	vec3 exitPoint = vec3(0.5, 0.5, 0.0);
-	
+{		
 	SCamera uCamera = initializeDefaultCamera(); 
     SRay ray = GenerateRay(uCamera);  
 	vec3 LightPosition = vec3(0.0, 2.0, -1.0);

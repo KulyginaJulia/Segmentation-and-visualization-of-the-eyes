@@ -99,7 +99,6 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.masks = new System.Windows.Forms.CheckedListBox();
-            this.button_to3d_plane = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.Tabs.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -139,6 +138,7 @@
             this.glControl2.VSync = false;
             this.glControl2.Load += new System.EventHandler(this.glControl2_Load);
             this.glControl2.Paint += new System.Windows.Forms.PaintEventHandler(this.glControl2_Paint);
+            this.glControl2.MouseMove += new System.Windows.Forms.MouseEventHandler(this.glControl2_MouseMove);
             // 
             // currentlayer
             // 
@@ -431,7 +431,6 @@
             // 
             // tabPage2
             // 
-            this.tabPage2.Controls.Add(this.button_to3d_plane);
             this.tabPage2.Controls.Add(this.button_to3D);
             this.tabPage2.Controls.Add(this.radioButton_knife);
             this.tabPage2.Controls.Add(this.button2);
@@ -877,16 +876,6 @@
             this.masks.TabIndex = 15;
             this.masks.SelectedIndexChanged += new System.EventHandler(this.masks_SelectedIndexChanged_1);
             // 
-            // button_to3d_plane
-            // 
-            this.button_to3d_plane.Location = new System.Drawing.Point(422, 6);
-            this.button_to3d_plane.Name = "button_to3d_plane";
-            this.button_to3d_plane.Size = new System.Drawing.Size(75, 103);
-            this.button_to3d_plane.TabIndex = 14;
-            this.button_to3d_plane.Text = "Вырезать контур плоскостями";
-            this.button_to3d_plane.UseVisualStyleBackColor = true;
-            this.button_to3d_plane.Click += new System.EventHandler(this.button_to3d_plane_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1002,7 +991,6 @@
         private System.Windows.Forms.RadioButton radioButton_y_z;
         private System.Windows.Forms.RadioButton radiobutton_x_y;
         private System.Windows.Forms.Button button_repaint;
-        private System.Windows.Forms.Button button_to3d_plane;
     }
 }
 
