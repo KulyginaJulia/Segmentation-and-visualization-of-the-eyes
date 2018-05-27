@@ -96,7 +96,7 @@ void main()
 {	
 	SCamera uCamera = initializeDefaultCamera(); 
     SRay ray = GenerateRay(uCamera);  
-	vec3 LightPosition = vec3(0.0, 200.0, -100.0);
+	vec3 LightPosition = campos;//vec3(0.0, 200.0, -100.0);
 	float deltaDirLen = 1.0 / Z;
 	
 	vec3 norm;

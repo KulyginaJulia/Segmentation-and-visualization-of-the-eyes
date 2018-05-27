@@ -473,6 +473,7 @@
             this.radioButton_knife.TabStop = true;
             this.radioButton_knife.Text = "Ножик";
             this.radioButton_knife.UseVisualStyleBackColor = true;
+            this.radioButton_knife.CheckedChanged += new System.EventHandler(this.radioButton_knife_CheckedChanged);
             this.radioButton_knife.MouseClick += new System.Windows.Forms.MouseEventHandler(this.radioButton_knife_MouseClick);
             // 
             // button2

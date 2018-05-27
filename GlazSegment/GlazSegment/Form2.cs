@@ -1,25 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Input;
-using System.Drawing.Imaging;
 using OpenTK.Graphics.OpenGL;
-using System.IO;
 using LiveCharts;
 using LiveCharts.Wpf;
-using LiveCharts.WinForms;
 using LiveCharts.Defaults;
-using LiveCharts.Configurations;
-using LiveCharts.Helpers;
-
 
 namespace GlazSegment
 {
@@ -45,33 +33,23 @@ namespace GlazSegment
     public partial class Form2 : Form
     {
         //**Data**//
-
-        public float[] array_difference_data;
-        public int[] frequency;
-        public int index_difference;
         int FrameCount;
-        public float Volume;
         DateTime NextFPSUpdate = DateTime.Now.AddSeconds(1);
         public Shaders m;
-        public float[] array2;
-        public int arraySize;
         bool flag = false;
-        public string binaryData;
-
-        public double MathWait;
-        public double Dispers;
-        public double G;
 
         public static Camera cam;
         public static Vector2 interval_1;
         public static Vector3 color1;
 
-        public static int count;
-        public int norma;
+       // public static int count;
         public List<Point_v> fi = new List<Point_v>();
         public string filepathtosh_1 = "..//..//ray_casting.frag";
-        public List<Point> Points = new List<Point>();
         public int sh = 0;
+        public string filepathtosh_2 = "..//..//ray_casting-knife_t1.frag";
+        float iso_value = 0; 
+        public Contur contur;
+        public Data dataControl;
         //**Functions**//
 
         void displayFPS()
@@ -84,8 +62,6 @@ namespace GlazSegment
             }
             FrameCount++;
         }
-
-        float iso_value = 0;
 
         public void Draw()
         {
@@ -101,15 +77,15 @@ namespace GlazSegment
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture3D, m.texture);
+            GL.BindTexture(TextureTarget.Texture3D, m.dataLocation.texture);
             if (sh == 2)
             {
                 GL.ActiveTexture(TextureUnit.Texture1);
-                GL.BindTexture(TextureTarget.Texture3D, m.texture_mask);
+                GL.BindTexture(TextureTarget.Texture3D, m.dataLocation.texture_mask);
             }
-            GL.EnableVertexAttribArray(m.attribute_vpos);
+            GL.EnableVertexAttribArray(m.dataLocation.attribute_vpos);
             GL.DrawArrays(PrimitiveType.Quads, 0, 4);
-            GL.DisableVertexAttribArray(m.attribute_vpos);
+            GL.DisableVertexAttribArray(m.dataLocation.attribute_vpos);
             GL.UseProgram(0);
         }
 
@@ -137,13 +113,8 @@ namespace GlazSegment
             cartesianChart1.Zoom = ZoomingOptions.Xy;
             this.sh = sh;
         }
-        public int width, height;
-        public string filepathtosh_2 = "..//..//ray_casting-knife_t1.frag";
-        public string Filename;
-        public int mWidth, mHeight, mDepth;
-        public float mXScale, mYScale, mZScale;
-        public float[] Contur;
-        public Form2(List<Point> P, string filename, int width, int height, int sh)
+
+        public Form2(Contur contur, int sh)
         {
             cam = new Camera();
             cam.camera_pos = new Vector3(0, 0, -1);
@@ -152,178 +123,29 @@ namespace GlazSegment
             cam.camera_side = new Vector3(1, 0, 0);
             interval_1 = new Vector2(1592, 2175);
             color1 = new Vector3(1, 1, 1);
-            Points = P;
-            this.width = width;
-            this.height = height;
-            Filename = filename;
-            LoadData(filename);
-            ConturToArray();
-
+            this.contur = new Contur(contur);          
+            dataControl = new GlazSegment.Data(contur.GetFilename());
+            m = new Shaders(dataControl);
+            this.contur.ConturToArray(dataControl.GetWidth(), dataControl.GetHeight(), dataControl.GetDepth());
+            m.loadVolumeMask(contur);
             this.sh = sh;
             flag = true;
             InitializeComponent();
             glControl1.Invalidate();
         }
-        public void ConturToArray()
-        {
-            int length = mWidth * mHeight * mDepth;
-
-            Contur = new float[length];
-            float[,,] Contur_middle = new float[mWidth, mHeight, mDepth];
-            for (int i = 0; i < mWidth; i++)
-                for (int j = 0; j < mHeight; j++)
-                    for (int k = 0; k < mDepth; k++)
-                        Contur_middle[i, j, k] = 0;
-            for (int i = 0; i < length; i++)
-            {
-                Contur[i] = 0;
-            }
-            foreach (Point p in Points)
-            {
-                int X_new = p.X * mWidth / width;
-                int Y_new = p.Y * mHeight / height;
-                for (int k = 0; k < mDepth; k++)
-                {
-                    Contur_middle[X_new, Y_new, k] = 1;
-                }
-            }
-            // Заполняем внутренность
-            int cou = 0;
-            for (int z = 0; z < mDepth; z++)
-                for (int j = 0; j < mHeight; j++)
-                    for (int i = 0; i < mWidth; i++)
-                    {
-                        if (Contur_middle[i, j, z] != 0)
-                        {
-                            if (Contur_middle[i + 1, j, z] != 0)
-                            {
-                                i += 2;
-                            }
-                            else i++;
-                            cou = i;
-                            while ((i < mWidth))
-                            {
-                                if ((Contur_middle[i, j, z] == 0))
-                                    i++;
-                                else break;
-                            }
-                            if (i == mWidth)
-                            {
-                                continue;
-                            }
-                            else
-                            {
-                                for (int k = cou; k < i; k++)
-                                {
-                                    Contur_middle[k, j, z] = 1;
-                                }
-                            }
-                        }
-                    }
-            // 3d -> 1d
-            for (int k = 0; k < mDepth; k++)
-                for (int j = 0; j < mHeight; j++)
-                    for (int i = 0; i < mWidth; i++)
-                    {
-                        Contur[i + j * mWidth + k * mWidth * mHeight] = Contur_middle[i, j, k];
-
-                    }
-        }
        
-        public bool LoadData(string fileName)
-        {
-            if (File.Exists(fileName))
-            {
-                try
-                {
-                    BinaryReader reader = new BinaryReader(File.Open(fileName, FileMode.Open));
-
-                    mWidth = reader.ReadInt32();
-                    mHeight = reader.ReadInt32();
-                    mDepth = reader.ReadInt32();
-
-                    mXScale = reader.ReadSingle();
-                    mYScale = reader.ReadSingle();
-                    mZScale = reader.ReadSingle();
-
-                    int length = mWidth * mHeight * mDepth;
-
-                    reader.Close();
-                    return true;
-                }
-                catch (Exception)
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                MessageBox.Show("File was not reader" + fileName);
-                return false;
-            }
-
-        }
         private void button_build_Click(object sender, EventArgs e)
         {
-            Volume = m.VX * m.VY * m.VZ;
-            Console.WriteLine(Volume);
-            array2 = new float[m.getSize()];
-            Array.Sort(m.array);
-            arraySize = m.getSize();
-            Array.Copy(m.array, array2, arraySize);
-
-            calculate_frequency(array2, arraySize);
+            fi = dataControl.calculate_frequency(fi);
 
             cartesianChart1.Series.Add(new LineSeries
             {
-                Title = "" + binaryData,
+                Title = "" + contur.GetFilename(),
                 Values = new ChartValues<ObservablePoint>(fi.Select(_ => new ObservablePoint(_.x, _.y))),
                 PointGeometry = DefaultGeometries.Square,
                 Stroke = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(107, 185, 69)),
                 PointGeometrySize = 5
             });
-        }
-
-        public void calculate_frequency(float[] data, int count)
-        {
-            int i = 0, f = 1;
-            if (count > 1)
-            {
-                for (i = 0; i < count - 1; i++)
-                {
-                    if (data[i] != data[i + 1])
-                        f++;
-                }
-                if (data[count - 2] != data[count - 1])
-                    f++;
-
-                float[] data_result1 = new float[f];
-                int[] data_result2 = new int[f];
-                f = -1; int idx;
-                for (int j = 0; j < count - 1; j++)
-                {
-                    f++;
-                    idx = 1;
-                    while ((j < count - 1) && (data[j] == data[j + 1]))
-                    {
-                        idx++;
-                        j++;
-                    }
-                    data_result1[f] = data[j];
-                    data_result2[f] = idx;
-                }
-                array_difference_data = new float[f];
-                frequency = new int[f];
-                index_difference = f;
-
-                for (int j = 0; j < f; j++)
-                {
-                    fi.Add(new Point_v(data_result1[j], data_result2[j]));
-                    array_difference_data[j] = data_result1[j];
-                    frequency[j] = data_result2[j];
-                }
-
-            }
         }
 
         private void glControl1_Paint(object sender, PaintEventArgs e)
@@ -368,24 +190,13 @@ namespace GlazSegment
             dialog.Filter = "binary files| *.bin";
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                binaryData = dialog.FileName;
+                string binaryData = dialog.FileName;
+                dataControl = new GlazSegment.Data(binaryData);
+                m = new Shaders(dataControl);
 
-                m = new Shaders();
-
-                if (sh == 1)
-                {
-                    m.loadVolumeData(binaryData);
-
-                }
-                else
-                {
-                    m.loadVolumeData(Filename);
-                    m.loadVolumeMask(Contur);
-                }
-
-                label_min.Text = m.array.Min().ToString();
-                label_max.Text = m.array.Max().ToString();
-                label_isoVal1.Text = ((m.array.Min() + m.array.Max()) / 2).ToString();
+                label_min.Text = dataControl.GetData().Min().ToString();
+                label_max.Text = dataControl.GetData().Max().ToString();
+                label_isoVal1.Text = ((dataControl.GetData().Min() + dataControl.GetData().Max()) / 2).ToString();
                 hScrollBar1.Minimum = int.Parse(label_min.Text);
                 hScrollBar1.Maximum = int.Parse(label_max.Text);
                 flag = true;
@@ -405,36 +216,26 @@ namespace GlazSegment
 
         private void button_char_Click(object sender, EventArgs e)
         {
-            MathWait = 0.0;
-            for (int j = 0; j < index_difference; j++)
-                norma += frequency[j];
-            for (int i = 0; i < index_difference; i++)
-                MathWait += array_difference_data[i] * frequency[i] / (double)norma; // Нормальная частота от 0 до 1 встречаемости, поэтому и делим
-            Dispers = 0;
-            for (int i = 0; i < index_difference; i++)
-                Dispers += (frequency[i] / (double)norma) * Math.Pow((array_difference_data[i] - MathWait), 2);
-            Dispers -= MathWait;
-            G = Math.Pow(Dispers, 0.5);
-
-            label1.Text = "Математическое ожидание = " + MathWait;
-            label2.Text = "Дисперсия = " + Dispers;
-            label3.Text = "Среднеквадратичное отклонение = " + G;
+            dataControl.CalculateStatData();
+            label1.Text = "Математическое ожидание = " + dataControl.MathWait;
+            label2.Text = "Дисперсия = " + dataControl.Dispers;
+            label3.Text = "Среднеквадратичное отклонение = " + dataControl.G;
         }
 
         private void cartesianChart1_DataClick(object sender, LiveCharts.ChartPoint p)
         {
-            count++;
-            var asPixels = cartesianChart1.Base.ConvertToPixels(p.AsPoint());
-            if (count == 1)
-            {
-                textBox1.Text = Convert.ToString(p.X);
-                interval_1.X = Convert.ToInt16(p.X);
-            }
-            if (count == 2)
-            {
-                textBox2.Text = Convert.ToString(p.X);
-                interval_1.Y = Convert.ToInt16(p.X);
-            }
+            //count++;
+            //var asPixels = cartesianChart1.Base.ConvertToPixels(p.AsPoint());
+            //if (count == 1)
+            //{
+            //    textBox1.Text = Convert.ToString(p.X);
+            //    interval_1.X = Convert.ToInt16(p.X);
+            //}
+            //if (count == 2)
+            //{
+            //    textBox2.Text = Convert.ToString(p.X);
+            //    interval_1.Y = Convert.ToInt16(p.X);
+            //}
             //color1.X = textBox3.BackColor.R / 255;
             //color1.Y = textBox3.BackColor.G / 255;
             //color1.Z = textBox3.BackColor.B / 255;
@@ -493,7 +294,7 @@ namespace GlazSegment
             color1.X = label4.BackColor.R / 255;
             color1.Y = label4.BackColor.G / 255;
             color1.Z = label4.BackColor.B / 255;
-            count = 0;
+           // count = 0;
             
         }
     }

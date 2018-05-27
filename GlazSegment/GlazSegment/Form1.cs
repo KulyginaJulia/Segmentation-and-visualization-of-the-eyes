@@ -16,10 +16,10 @@ namespace GlazSegment
     {
         Volume mLVolume, mRVolume;
         Control mControl = new Control();
-
-
         Color[] colorBox = new Color[4];
         int plane = 0;
+        public int filen;
+
         public Form1()
         {
             colorBox[0] = Color.Red;
@@ -31,8 +31,8 @@ namespace GlazSegment
             cColor.SelectedIndex = 0;
             cSize.SelectedIndex = 0;
         }
-        private void rePaint()
-        {
+
+        private void CheckPlane() {
             if ((radiobutton_x_y.Checked) && (!radioButton_x_z.Checked) && (!radioButton_y_z.Checked))
             {
                 plane = 1;
@@ -45,6 +45,11 @@ namespace GlazSegment
             {
                 plane = 3;
             }
+        }
+
+        private void rePaint()
+        {
+            CheckPlane();
             mLVolume.LoadTexture(currentlayer.Value, int.Parse(window_max.Text), int.Parse(window_min.Text), plane);
             glControl1.Refresh();
 
@@ -54,18 +59,21 @@ namespace GlazSegment
             glControl1.Refresh();
             glControl2.Refresh();
         }
+
         private void glControl1_Load(object sender, EventArgs e)
         {
             mLVolume = new Volume();
             mControl.lVolume = mLVolume;
             this.DoubleBuffered = true;
         }
+
         private void glControl2_Load(object sender, EventArgs e)
         {
             mRVolume = new Volume();
             mControl.rVolume = mRVolume;
             this.DoubleBuffered = true;
         }
+
         private void openandloadmem(string side)
         {
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
@@ -89,7 +97,6 @@ namespace GlazSegment
                         if (mRVolume.LoadData(openFileDialog1.FileName.ToString()))
                             PathRight.Text = openFileDialog1.FileName.ToString();
                     }
-
                     if (PathLeft.Text.Length > 0 && PathRight.Text.Length > 0)
                     {
                         currentlayer.Enabled = true;
@@ -100,8 +107,6 @@ namespace GlazSegment
 
                         rePaint();
                     }
-
-
                     openFileDialog1.Dispose();
                 }
             }
@@ -109,18 +114,7 @@ namespace GlazSegment
 
         private void currentlayer_Scroll(object sender, ScrollEventArgs e)
         {
-            if ((radiobutton_x_y.Checked) && (!radioButton_x_z.Checked) && (!radioButton_y_z.Checked))
-            {
-                plane = 1;
-            }
-            else if ((!radiobutton_x_y.Checked) && (!radioButton_x_z.Checked) && (radioButton_y_z.Checked))
-            {
-                plane = 2;
-            }
-            else
-            {
-                plane = 3;
-            }
+            CheckPlane();
             mLVolume.LoadTexture(currentlayer.Value, int.Parse(window_max.Text), int.Parse(window_min.Text), plane);
             glControl1.Refresh();
             mRVolume.LoadTexture(currentlayer.Value, int.Parse(window_max.Text), int.Parse(window_min.Text), plane);
@@ -293,9 +287,9 @@ namespace GlazSegment
                        y = (Cursor.Position.Y - P.Y) * Oy;
 
 
-                if (!rWandPen.Checked) // Если это не волшебная палочка, тогда
+                if (!rWandPen.Checked)
                 {
-                    switch (cForm.SelectedIndex) // Вероятно это кисть или ластик, определяем форму кисти
+                    switch (cForm.SelectedIndex)
                     {
                         case 0:
                             {
@@ -305,7 +299,7 @@ namespace GlazSegment
                                             if ((int)x - (cSize.SelectedIndex + 1) / 2 + i < mControl.mBitmapList[masks.SelectedIndex].Width)
                                                 if ((int)y - (cSize.SelectedIndex + 1) / 2 + j >= 0)
                                                     if ((int)y - (cSize.SelectedIndex + 1) / 2 + j < mControl.mBitmapList[masks.SelectedIndex].Height)
-                                                        if (rPen.Checked) // Если это все таки кисть, то рисуем выбранным цветом, если нет, то белым - ластик 
+                                                        if (rPen.Checked)
                                                             mControl.mBitmapList[masks.SelectedIndex].SetPixel((int)x - (cSize.SelectedIndex + 1) / 2 + i, (int)y - (cSize.SelectedIndex + 1) / 2 + j, colorBox[cColor.SelectedIndex]);
                                                         else
                                                             mControl.mBitmapList[masks.SelectedIndex].SetPixel((int)x - (cSize.SelectedIndex + 1) / 2 + i, (int)y - (cSize.SelectedIndex + 1) / 2 + j, Color.White);
@@ -353,8 +347,6 @@ namespace GlazSegment
                 rePaint();
             }
         }
-        public int filen;
-
 
         private void статистикаToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -539,21 +531,17 @@ namespace GlazSegment
             rPen.Checked = false;
             radioButton_knife.Checked = true;
         }
-        public List<Point> Points = new List<Point>();
+
+        public Contur contur;
         public Pen mypen = new Pen(Color.Green, 1);
         private void glControl1_MouseMove(object sender, MouseEventArgs e)
         {
             int count = 0;
-            Point Ps = new Point();
-            Point Pf = new Point();
-
             if ((radioButton_knife.Checked) && (masks.SelectedIndex > -1))
             {
                 Point P = PointToScreen(new Point(glControl1.Bounds.Left, glControl1.Bounds.Top));
                 double Ox = (double)(mControl.mBitmapList[masks.SelectedIndex].Width / 350.0),
-                           Oy = (double)(mControl.mBitmapList[masks.SelectedIndex].Height / 350.0);
-
-                
+                       Oy = (double)(mControl.mBitmapList[masks.SelectedIndex].Height / 350.0);                
                 if (e.Button == MouseButtons.Left)
                 {
 
@@ -566,106 +554,50 @@ namespace GlazSegment
                     startPoint.X = Convert.ToInt32((Cursor.Position.X - P.X) * Ox);
                     startPoint.Y = Convert.ToInt32((Cursor.Position.Y - P.Y) * Oy);
 
-                    Points.Add(startPoint);
+                    contur.Points.Add(startPoint);
                     Rectangle rectangle = new Rectangle(startPoint.X - (size / 2), startPoint.Y - (size / 2), size, size);
-                    if (count == 0) { Ps = startPoint; }
                     count++;
                     g2.FillEllipse(fillBrush, rectangle);
                     g2.DrawEllipse(mypen_, rectangle);
                     g2.Dispose();
                     rePaint();
-                    Pf = startPoint;
                 }
-                else if (Points.Count > 2)
+                else if (contur.Points.Count > 2)
                 {
                     Graphics g2 = Graphics.FromImage(mControl.mBitmapList[masks.SelectedIndex]);
                     g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                    g2.DrawClosedCurve(mypen, Points.ToArray());
-
+                    g2.DrawClosedCurve(mypen, contur.Points.ToArray());
                     g2.Dispose();
                     rePaint();
-
-
                 }
             }
 
         }
-        public List<Point> Contur_green = new List<Point>();
-        public void CalculateContur(Color colorPen)
-        {
-            if (masks.SelectedIndex > -1)
-            {
-                Bitmap mp = new Bitmap(mControl.mBitmapList[masks.SelectedIndex]);
-                for (int x = 0; x < mp.Width; x++)
-                    for (int y = 0; y < mp.Height; y++)
-                    {
-                        if (mp.GetPixel(x, y).G > mp.GetPixel(x, y).R)
-                        {
-                            Contur_green.Add(new Point(x, y));
-                        }
-                    }
-            }
-        }
+
         private void button_to3D_Click(object sender, EventArgs e)
         {
             if (!radioButton_knife.Checked) { }
-            CalculateContur(mypen.Color);
-            string filename;
-            Form2 tempDialog;
-            if ((rrright.Checked) && (!rrleft.Checked))
-            {
-                filename = PathLeft.Text;
-                tempDialog = new Form2(Contur_green, filename, glControl1.Width, glControl1.Height, 2);
-            }
-            else
-            {
-                filename = PathRight.Text;
-                tempDialog = new Form2(Contur_green, filename, glControl2.Width, glControl2.Height, 2);
-            }
+            contur.CalculateContur(mControl.mBitmapList[masks.SelectedIndex]);
+            Form2 tempDialog = new Form2(contur, 2);
             tempDialog.ShowDialog();
         }
 
         private void button_repaint_Click(object sender, EventArgs e)
         {
-            if ((radiobutton_x_y.Checked) && (!radioButton_x_z.Checked) && (!radioButton_y_z.Checked))
-            {
-                plane = 1;
-            }
-            else if ((!radiobutton_x_y.Checked) && (!radioButton_x_z.Checked) && (radioButton_y_z.Checked))
-            {
-                plane = 2;
-            }
-            else
-            {
-                plane = 3;
-            }
+            CheckPlane();
             rePaint();
-        }
-
-        private void button_to3d_plane_Click(object sender, EventArgs e)
-        {
-            if (!radioButton_knife.Checked) { }
-            string filename = PathLeft.Text;
-            Form2 tempDialog = new Form2(Points, filename, glControl1.Width, glControl1.Height, 3);
-            tempDialog.ShowDialog();
         }
 
         private void glControl2_MouseMove(object sender, MouseEventArgs e)
         {
             int count = 0;
-            Point Ps = new Point();
-            Point Pf = new Point();
-
             if ((radioButton_knife.Checked) && (masks.SelectedIndex > -1))
             {
                 Point P = PointToScreen(new Point(glControl2.Bounds.Left, glControl2.Bounds.Top));
                 double Ox = (double)(mControl.mBitmapList[masks.SelectedIndex].Width / 350.0),
                            Oy = (double)(mControl.mBitmapList[masks.SelectedIndex].Height / 350.0);
-
-
                 if (e.Button == MouseButtons.Left)
                 {
-
                     Pen mypen_ = new Pen(Color.Blue, 1);
                     Brush fillBrush = new SolidBrush(Color.Blue);
                     Graphics g2 = Graphics.FromImage(mControl.mBitmapList[masks.SelectedIndex]);
@@ -675,28 +607,40 @@ namespace GlazSegment
                     startPoint.X = Convert.ToInt32((Cursor.Position.X - P.X) * Ox);
                     startPoint.Y = Convert.ToInt32((Cursor.Position.Y - P.Y) * Oy);
 
-                    Points.Add(startPoint);
+                    contur.Points.Add(startPoint);
                     Rectangle rectangle = new Rectangle(startPoint.X - (size / 2), startPoint.Y - (size / 2), size, size);
-                    if (count == 0) { Ps = startPoint; }
                     count++;
                     g2.FillEllipse(fillBrush, rectangle);
                     g2.DrawEllipse(mypen_, rectangle);
                     g2.Dispose();
                     rePaint();
-                    Pf = startPoint;
                 }
-                else if (Points.Count > 2)
+                else if (contur.Points.Count > 2)
                 {
                     Graphics g2 = Graphics.FromImage(mControl.mBitmapList[masks.SelectedIndex]);
                     g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                    g2.DrawClosedCurve(mypen, Points.ToArray());
+                    g2.DrawClosedCurve(mypen, contur.Points.ToArray());
 
                     g2.Dispose();
                     rePaint();
-
-
                 }
             }
+        }
+
+        private void radioButton_knife_CheckedChanged(object sender, EventArgs e)
+        {
+            string filename;
+            if ((rrright.Checked) && (!rrleft.Checked))
+            {
+                filename = PathLeft.Text;
+                contur = new Contur(glControl1.Height, glControl1.Width, filename);
+            }
+            else
+            {
+                filename = PathRight.Text;
+                contur = new Contur(glControl2.Height, glControl2.Width, filename);
+            }
+            
         }
 
         private void masks_SelectedIndexChanged_1(object sender, EventArgs e)
