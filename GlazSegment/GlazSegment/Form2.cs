@@ -8,6 +8,7 @@ using OpenTK.Graphics.OpenGL;
 using LiveCharts;
 using LiveCharts.Wpf;
 using LiveCharts.Defaults;
+using System.Drawing;
 
 namespace GlazSegment
 {
@@ -42,14 +43,16 @@ namespace GlazSegment
         public static Vector2 interval_1;
         public static Vector3 color1;
 
-       // public static int count;
+        // public static int count;
         public List<Point_v> fi = new List<Point_v>();
         public string filepathtosh_1 = "..//..//ray_casting.frag";
         public int sh = 0;
         public string filepathtosh_2 = "..//..//ray_casting-knife_t1.frag";
-        float iso_value = 0; 
+        float iso_value = 0;
         public Contur contur;
         public Data dataControl;
+        public Isosurfaces Surfaces;
+        public Isosurf currentIsosurface;
         //**Functions**//
 
         void displayFPS()
@@ -68,9 +71,9 @@ namespace GlazSegment
             Console.WriteLine(m.glslVersion);
             Console.WriteLine(m.glVersion);
             if (sh == 1)
-                m.InitShaders(cam, iso_value, color1, 1, filepathtosh_1);
+                m.InitShaders(cam, 1, filepathtosh_1, Surfaces);
             else
-                m.InitShaders(cam, iso_value, color1, 2, filepathtosh_2);
+                m.InitShaders(cam, 2, filepathtosh_2, Surfaces);
 
             GL.Viewport(0, 0, glControl1.Width, glControl1.Height);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -78,11 +81,17 @@ namespace GlazSegment
             GL.Enable(EnableCap.CullFace);
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture3D, m.dataLocation.texture);
+
+            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.BindTexture(TextureTarget.Texture1D, m.dataLocation.texture_color);
+            GL.ActiveTexture(TextureUnit.Texture2);
+            GL.BindTexture(TextureTarget.Texture3D, m.dataLocation.texture_isovalue);
             if (sh == 2)
             {
-                GL.ActiveTexture(TextureUnit.Texture1);
+                GL.ActiveTexture(TextureUnit.Texture3);
                 GL.BindTexture(TextureTarget.Texture3D, m.dataLocation.texture_mask);
             }
+
             GL.EnableVertexAttribArray(m.dataLocation.attribute_vpos);
             GL.DrawArrays(PrimitiveType.Quads, 0, 4);
             GL.DisableVertexAttribArray(m.dataLocation.attribute_vpos);
@@ -112,8 +121,22 @@ namespace GlazSegment
             });
             cartesianChart1.Zoom = ZoomingOptions.Xy;
             this.sh = sh;
+            dataGridView1.Rows.Add();
+            currentIsosurface = new Isosurf();
+            Surfaces = new Isosurfaces();
+            FillFirstRow();
         }
+        public void FillFirstRow()
+        {
+            dataGridView1[1, 0].Value = 0;
+            dataGridView1[2, 0].Style.BackColor = System.Drawing.Color.White;
+            dataGridView1[3, 0].Value = 100;
+            Color current = dataGridView1[2, 0].Style.BackColor;
+            currentIsosurface.Color = new Vector4(current.R / 255, current.G / 255, current.B / 255, float.Parse(dataGridView1[3, 0].Value.ToString()) / 100);
+            currentIsosurface.iso_value = (int)dataGridView1[1, 0].Value;
+            Surfaces.Add(currentIsosurface);
 
+        }
         public Form2(Contur contur, int sh)
         {
             cam = new Camera();
@@ -123,7 +146,7 @@ namespace GlazSegment
             cam.camera_side = new Vector3(1, 0, 0);
             interval_1 = new Vector2(1592, 2175);
             color1 = new Vector3(1, 1, 1);
-            this.contur = new Contur(contur);          
+            this.contur = new Contur(contur);
             dataControl = new GlazSegment.Data(contur.GetFilename());
             m = new Shaders(dataControl);
             this.contur.ConturToArray(dataControl.GetWidth(), dataControl.GetHeight(), dataControl.GetDepth());
@@ -131,9 +154,13 @@ namespace GlazSegment
             this.sh = sh;
             flag = true;
             InitializeComponent();
+            dataGridView1.Rows.Add();
+            currentIsosurface = new Isosurf();
+            Surfaces = new Isosurfaces();
+            FillFirstRow();
             glControl1.Invalidate();
         }
-       
+
         private void button_build_Click(object sender, EventArgs e)
         {
             fi = dataControl.calculate_frequency(fi);
@@ -151,7 +178,7 @@ namespace GlazSegment
         private void glControl1_Paint(object sender, PaintEventArgs e)
         {
             if (flag == true)
-            {  
+            {
                 Draw();
                 glControl1.MakeCurrent();
                 glControl1.SwapBuffers();
@@ -206,6 +233,18 @@ namespace GlazSegment
         private void hScrollBar1_Scroll(object sender, ScrollEventArgs e)
         {
             iso_value = hScrollBar1.Value;
+            if (dataGridView1[1, currP.X].Value.Equals(null))
+            {
+                dataGridView1[1, currP.X].Value = iso_value;
+                currentIsosurface.iso_value = (int)iso_value;
+
+            }
+            else
+            {
+                int oldvalue = int.Parse(dataGridView1[1, currP.X].Value.ToString());
+                dataGridView1[1, currP.X].Value = iso_value;
+                Surfaces.isoValue[Surfaces.isoValue.FindIndex(ind => ind.Equals(oldvalue))] = (int)iso_value;
+            }
             label_isoVal1.Text = iso_value.ToString();
         }
 
@@ -294,8 +333,90 @@ namespace GlazSegment
             color1.X = label4.BackColor.R / 255;
             color1.Y = label4.BackColor.G / 255;
             color1.Z = label4.BackColor.B / 255;
-           // count = 0;
-            
+            // count = 0;
+
         }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+        Point currP = new Point();
+        private void dataGridView1_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            currP.X = e.RowIndex;
+            currP.Y = e.ColumnIndex;
+            if (currP.Y == 2)
+            {
+                ColorDialog MyDialog = new ColorDialog();
+                MyDialog.AllowFullOpen = false;
+                MyDialog.ShowHelp = true;
+                MyDialog.Color = dataGridView1[2, e.RowIndex].Style.BackColor;//label4.BackColor; //textBox3.BackColor;
+                if (MyDialog.ShowDialog() == DialogResult.OK)
+                    dataGridView1[2, e.RowIndex].Style.BackColor = MyDialog.Color;
+
+                Color current = dataGridView1[2, e.RowIndex].Style.BackColor;
+                currentIsosurface.Color = new Vector4(current.R / 255, current.G / 255, current.B / 255, 0f);
+                color1.X = label4.BackColor.R / 255;
+                color1.Y = label4.BackColor.G / 255;
+                color1.Z = label4.BackColor.B / 255;
+            }
+        }
+
+
+        private void dataGridView1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                currentIsosurface.Color.W = float.Parse(dataGridView1[3, currP.Y].Value.ToString()) / 100;
+                Surfaces.Add(currentIsosurface);
+            }
+        }
+
+        Point CurrentPoint = new Point();
+        private void glControl1_MouseDown(object sender, MouseEventArgs e)
+        {
+            CurrentPoint.X = e.X;
+            CurrentPoint.Y = e.Y;
+        }
+
+        private void glControl1_MouseUp(object sender, MouseEventArgs e)
+        {
+            Point delta = new Point();
+            delta.X = CurrentPoint.X - e.X;
+            delta.Y = CurrentPoint.Y - e.Y;
+
+            updateMouse(delta);
+        }
+
+        void updateMouse(Point delta)
+        {
+            float cur_x, cur_y;
+            float a1 = 0f, a2 = 0f;
+            float radius = 1;
+
+            cur_x = delta.X;
+            cur_y = delta.Y;
+
+            a2 -= (float)Math.Atan2(cur_y, radius);
+
+            a1 += (float)Math.Atan2(cur_x, radius);
+            CurrentPoint.X = (int)(3 * glControl1.Width / 2.0f);
+            CurrentPoint.Y = (int)(3 * glControl1.Height / 2.0f);
+
+
+            Vector3 lookat = new Vector3();
+
+            lookat.X = (float)(Math.Sin(a1) * Math.Cos(a2));
+            lookat.Y = (float)(Math.Sin(a2));
+            lookat.Z = (float)(Math.Cos(a1) * Math.Cos(a2));
+
+            Matrix4 view = Matrix4.LookAt(cam.camera_pos, cam.camera_pos + lookat, Vector3.UnitY);
+
+            cam.camera_side = -view.Column0.Xyz;
+            cam.camera_up = view.Column1.Xyz;
+            cam.camera_view = -view.Column2.Xyz;
+        }
+
     }
 }

@@ -15,8 +15,8 @@ uniform vec3 view;
 uniform vec3 up;
 uniform vec3 side;
 uniform vec3 cell_size;
-uniform vec3 color;
-uniform float iso_value;
+uniform sampler1D color;
+uniform sampler1D iso_value;
 
 out vec4 FragColor;
 
@@ -101,8 +101,8 @@ void main()
 	
 	vec3 norm;
 	vec4 colorAcum = vec4(0.0);
-	float isoValue =  iso_value;
-	vec4 isoColor = vec4(color, 1.0);
+	float isoValue =  texture(iso_value, 0).x;
+	vec4 isoColor = vec4(texture(color, 0).x, texture(color, 1).x, texture(color, 2).x, texture(color, 3).x);
 	float rightDensityValue = 0.0;
 	float final = 100.0;
 	float start;

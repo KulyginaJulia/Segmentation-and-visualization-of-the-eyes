@@ -12,18 +12,17 @@ namespace GlazSegment
         public int BasicProgramID;
         public int BasicVertexShader;
         public int BasicFragmentShader;
-
-        public Data dataControl;
   
         public Contur mask;
         public DataLocationShader dataLocation;
+        public Isosurfaces Surfaces;
 
         public Shaders(Data dt)
         {
             glVersion = GL.GetString(StringName.Version);
             glslVersion = GL.GetString(StringName.ShadingLanguageVersion);
-            dataControl = new Data(dt);
-            dataLocation = new DataLocationShader(dataControl);
+            dataLocation = new DataLocationShader(dt);
+            Surfaces = new Isosurfaces();
 
         }
         public void loadVolumeMask(Contur cnt)
@@ -42,7 +41,7 @@ namespace GlazSegment
             GL.AttachShader(program, address);
             Console.WriteLine(GL.GetShaderInfoLog(address));
         }
-        public void InitShaders(Camera cam, float iso_value, Vector3 color1, int flag_of_mask, string filepathtofragshader)
+        public void InitShaders(Camera cam, int flag_of_mask, string filepathtofragshader, Isosurfaces surf)
         {
             BasicProgramID = GL.CreateProgram();
             loadShader("..//..//ray_casting.vert", ShaderType.VertexShader, BasicProgramID, out BasicVertexShader);
@@ -53,8 +52,8 @@ namespace GlazSegment
             GL.GetProgram(BasicProgramID, GetProgramParameterName.LinkStatus, out status);
             Console.WriteLine("InfoLog:");
             Console.WriteLine(GL.GetProgramInfoLog(BasicProgramID));
-            dataLocation.Initial(BasicProgramID, flag_of_mask);
-            dataLocation.Update(BasicProgramID, flag_of_mask, cam, color1, iso_value);
+            dataLocation.Initial(BasicProgramID, flag_of_mask, surf);
+            dataLocation.Update(BasicProgramID, flag_of_mask, cam);
         }
     }
 }

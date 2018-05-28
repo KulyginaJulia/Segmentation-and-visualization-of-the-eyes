@@ -49,7 +49,15 @@
             this.labelisoval1 = new System.Windows.Forms.Label();
             this.label_isoVal1 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.Choice = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.IsoValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Color = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Intensity = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.menuStrip1.SuspendLayout();
+            this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // glControl1
@@ -63,6 +71,8 @@
             this.glControl1.Load += new System.EventHandler(this.glControl1_Load);
             this.glControl1.Paint += new System.Windows.Forms.PaintEventHandler(this.glControl1_Paint);
             this.glControl1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.glControl1_KeyPress);
+            this.glControl1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.glControl1_MouseDown);
+            this.glControl1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.glControl1_MouseUp);
             // 
             // button_build
             // 
@@ -80,7 +90,7 @@
             this.файлToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1146, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(1199, 24);
             this.menuStrip1.TabIndex = 3;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -147,7 +157,7 @@
             // 
             this.cartesianChart1.Location = new System.Drawing.Point(610, 27);
             this.cartesianChart1.Name = "cartesianChart1";
-            this.cartesianChart1.Size = new System.Drawing.Size(524, 302);
+            this.cartesianChart1.Size = new System.Drawing.Size(577, 302);
             this.cartesianChart1.TabIndex = 8;
             this.cartesianChart1.Text = "cartesianChart1";
             this.cartesianChart1.DataClick += new LiveCharts.Events.DataClickHandler(this.cartesianChart1_DataClick);
@@ -182,7 +192,7 @@
             // 
             this.hScrollBar1.Location = new System.Drawing.Point(610, 332);
             this.hScrollBar1.Name = "hScrollBar1";
-            this.hScrollBar1.Size = new System.Drawing.Size(524, 17);
+            this.hScrollBar1.Size = new System.Drawing.Size(580, 17);
             this.hScrollBar1.TabIndex = 13;
             this.hScrollBar1.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBar1_Scroll);
             // 
@@ -198,7 +208,7 @@
             // label_max
             // 
             this.label_max.AutoSize = true;
-            this.label_max.Location = new System.Drawing.Point(1080, 353);
+            this.label_max.Location = new System.Drawing.Point(1136, 353);
             this.label_max.Name = "label_max";
             this.label_max.Size = new System.Drawing.Size(54, 13);
             this.label_max.TabIndex = 15;
@@ -231,11 +241,56 @@
             this.label4.TabIndex = 18;
             this.label4.Text = "label4";
             // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.dataGridView1);
+            this.panel1.Location = new System.Drawing.Point(613, 385);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(523, 100);
+            this.panel1.TabIndex = 19;
+            // 
+            // dataGridView1
+            // 
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.Choice,
+            this.IsoValue,
+            this.Color,
+            this.Intensity});
+            this.dataGridView1.Location = new System.Drawing.Point(3, 3);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.Size = new System.Drawing.Size(520, 94);
+            this.dataGridView1.TabIndex = 0;
+            this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
+            this.dataGridView1.CellMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dataGridView1_CellMouseClick);
+            this.dataGridView1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.dataGridView1_KeyDown);
+            // 
+            // Choice
+            // 
+            this.Choice.HeaderText = "Choice";
+            this.Choice.Name = "Choice";
+            // 
+            // IsoValue
+            // 
+            this.IsoValue.HeaderText = "IsoValue";
+            this.IsoValue.Name = "IsoValue";
+            // 
+            // Color
+            // 
+            this.Color.HeaderText = "Color";
+            this.Color.Name = "Color";
+            // 
+            // Intensity
+            // 
+            this.Intensity.HeaderText = "Intensity";
+            this.Intensity.Name = "Intensity";
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1146, 509);
+            this.ClientSize = new System.Drawing.Size(1199, 509);
+            this.Controls.Add(this.panel1);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label_isoVal1);
             this.Controls.Add(this.labelisoval1);
@@ -260,6 +315,8 @@
             this.Load += new System.EventHandler(this.Form2_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -288,5 +345,11 @@
         private System.Windows.Forms.Label labelisoval1;
         private System.Windows.Forms.Label label_isoVal1;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn Choice;
+        private System.Windows.Forms.DataGridViewTextBoxColumn IsoValue;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Color;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Intensity;
     }
 }
