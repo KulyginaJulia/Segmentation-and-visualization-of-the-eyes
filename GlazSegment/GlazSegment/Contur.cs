@@ -57,7 +57,8 @@ namespace GlazSegment
         {
             return this.fileName;
         }
-        public List<Point> GetPointsOfContur() {
+        public List<Point> GetPointsOfContur()
+        {
             return this.PointsOfContur;
         }
         public void CalculateContur(Bitmap tmp)
@@ -138,7 +139,8 @@ namespace GlazSegment
 
                     }
         }
- public float[] GetConturForShader() {
+        public float[] GetConturForShader()
+        {
             return this.ConturForShader;
         }
     }

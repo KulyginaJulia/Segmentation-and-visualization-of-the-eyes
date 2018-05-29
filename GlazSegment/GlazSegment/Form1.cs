@@ -19,6 +19,8 @@ namespace GlazSegment
         Color[] colorBox = new Color[4];
         int plane = 0;
         public int filen;
+        public Contur contur;
+        public Pen mypen = new Pen(Color.Green, 1);
 
         public Form1()
         {
@@ -532,8 +534,6 @@ namespace GlazSegment
             radioButton_knife.Checked = true;
         }
 
-        public Contur contur;
-        public Pen mypen = new Pen(Color.Green, 1);
         private void glControl1_MouseMove(object sender, MouseEventArgs e)
         {
             int count = 0;

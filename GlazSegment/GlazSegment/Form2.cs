@@ -40,10 +40,9 @@ namespace GlazSegment
         bool flag = false;
 
         public static Camera cam;
-        public static Vector2 interval_1;
-        public static Vector3 color1;
+        //  public static Vector2 interval_1;
+        //  public static Vector3 color1;
 
-        // public static int count;
         public List<Point_v> fi = new List<Point_v>();
         public string filepathtosh_1 = "..//..//ray_casting.frag";
         public int sh = 0;
@@ -85,13 +84,12 @@ namespace GlazSegment
             GL.ActiveTexture(TextureUnit.Texture1);
             GL.BindTexture(TextureTarget.Texture1D, m.dataLocation.texture_color);
             GL.ActiveTexture(TextureUnit.Texture2);
-            GL.BindTexture(TextureTarget.Texture3D, m.dataLocation.texture_isovalue);
+            GL.BindTexture(TextureTarget.Texture1D, m.dataLocation.texture_isovalue);
             if (sh == 2)
             {
                 GL.ActiveTexture(TextureUnit.Texture3);
                 GL.BindTexture(TextureTarget.Texture3D, m.dataLocation.texture_mask);
             }
-
             GL.EnableVertexAttribArray(m.dataLocation.attribute_vpos);
             GL.DrawArrays(PrimitiveType.Quads, 0, 4);
             GL.DisableVertexAttribArray(m.dataLocation.attribute_vpos);
@@ -106,8 +104,8 @@ namespace GlazSegment
             cam.camera_view = new Vector3(0, -1, 1);
             cam.camera_up = new Vector3(0, 1, 0);
             cam.camera_side = new Vector3(1, 0, 0);
-            interval_1 = new Vector2(1592, 2175);
-            color1 = new Vector3(1, 1, 1);
+            //   interval_1 = new Vector2(1592, 2175);
+            //   color1 = new Vector3(1, 1, 1);
 
             InitializeComponent();
             glControl1.Invalidate();
@@ -128,13 +126,14 @@ namespace GlazSegment
         }
         public void FillFirstRow()
         {
-            dataGridView1[1, 0].Value = 0;
+            dataGridView1[1, 0].Value = 50;
             dataGridView1[2, 0].Style.BackColor = System.Drawing.Color.White;
-            dataGridView1[3, 0].Value = 100;
+            dataGridView1[3, 0].Value = 50;
             Color current = dataGridView1[2, 0].Style.BackColor;
             currentIsosurface.Color = new Vector4(current.R / 255, current.G / 255, current.B / 255, float.Parse(dataGridView1[3, 0].Value.ToString()) / 100);
             currentIsosurface.iso_value = (int)dataGridView1[1, 0].Value;
             Surfaces.Add(currentIsosurface);
+            currentIsosurface.Clear();
 
         }
         public Form2(Contur contur, int sh)
@@ -144,8 +143,8 @@ namespace GlazSegment
             cam.camera_view = new Vector3(0, 0, 1);
             cam.camera_up = new Vector3(0, 1, 0);
             cam.camera_side = new Vector3(1, 0, 0);
-            interval_1 = new Vector2(1592, 2175);
-            color1 = new Vector3(1, 1, 1);
+            //    interval_1 = new Vector2(1592, 2175);
+            //   color1 = new Vector3(1, 1, 1);
             this.contur = new Contur(contur);
             dataControl = new GlazSegment.Data(contur.GetFilename());
             m = new Shaders(dataControl);
@@ -223,7 +222,7 @@ namespace GlazSegment
 
                 label_min.Text = dataControl.GetData().Min().ToString();
                 label_max.Text = dataControl.GetData().Max().ToString();
-                label_isoVal1.Text = ((dataControl.GetData().Min() + dataControl.GetData().Max()) / 2).ToString();
+                label_isoVal1.Text = dataGridView1[1, 0].Value.ToString();//((dataControl.GetData().Min() + dataControl.GetData().Max()) / 2).ToString();
                 hScrollBar1.Minimum = int.Parse(label_min.Text);
                 hScrollBar1.Maximum = int.Parse(label_max.Text);
                 flag = true;
@@ -233,17 +232,24 @@ namespace GlazSegment
         private void hScrollBar1_Scroll(object sender, ScrollEventArgs e)
         {
             iso_value = hScrollBar1.Value;
-            if (dataGridView1[1, currP.X].Value.Equals(null))
+            if (dataGridView1[1, currP.X].Value == null)
             {
                 dataGridView1[1, currP.X].Value = iso_value;
-                currentIsosurface.iso_value = (int)iso_value;
-
+                currentIsosurface.iso_value = iso_value;
             }
             else
             {
-                int oldvalue = int.Parse(dataGridView1[1, currP.X].Value.ToString());
+                float oldvalue = float.Parse(dataGridView1[1, currP.X].Value.ToString());
                 dataGridView1[1, currP.X].Value = iso_value;
-                Surfaces.isoValue[Surfaces.isoValue.FindIndex(ind => ind.Equals(oldvalue))] = (int)iso_value;
+                int index = Surfaces.isoValue.FindIndex(ind => ind.Equals(oldvalue));
+                if (index != -1)
+                {
+                    Surfaces.isoValue[index] = iso_value;
+                }
+                else
+                {
+                    currentIsosurface.iso_value = iso_value;
+                }
             }
             label_isoVal1.Text = iso_value.ToString();
         }
@@ -322,21 +328,6 @@ namespace GlazSegment
             }
         }
 
-        private void button_color_Click(object sender, EventArgs e)
-        {
-            ColorDialog MyDialog = new ColorDialog();
-            MyDialog.AllowFullOpen = false;
-            MyDialog.ShowHelp = true;
-            MyDialog.Color = label4.BackColor; //textBox3.BackColor;
-            if (MyDialog.ShowDialog() == DialogResult.OK)
-                label4.BackColor = MyDialog.Color;
-            color1.X = label4.BackColor.R / 255;
-            color1.Y = label4.BackColor.G / 255;
-            color1.Z = label4.BackColor.B / 255;
-            // count = 0;
-
-        }
-
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
 
@@ -351,15 +342,16 @@ namespace GlazSegment
                 ColorDialog MyDialog = new ColorDialog();
                 MyDialog.AllowFullOpen = false;
                 MyDialog.ShowHelp = true;
-                MyDialog.Color = dataGridView1[2, e.RowIndex].Style.BackColor;//label4.BackColor; //textBox3.BackColor;
+                MyDialog.Color = dataGridView1[2, e.RowIndex].Style.BackColor;
                 if (MyDialog.ShowDialog() == DialogResult.OK)
                     dataGridView1[2, e.RowIndex].Style.BackColor = MyDialog.Color;
 
                 Color current = dataGridView1[2, e.RowIndex].Style.BackColor;
                 currentIsosurface.Color = new Vector4(current.R / 255, current.G / 255, current.B / 255, 0f);
-                color1.X = label4.BackColor.R / 255;
-                color1.Y = label4.BackColor.G / 255;
-                color1.Z = label4.BackColor.B / 255;
+            }
+            if (currP.Y == 1)
+            {
+                dataGridView1[1, e.RowIndex].Value = null;
             }
         }
 
@@ -368,7 +360,7 @@ namespace GlazSegment
         {
             if (e.KeyCode == Keys.Enter)
             {
-                currentIsosurface.Color.W = float.Parse(dataGridView1[3, currP.Y].Value.ToString()) / 100;
+                currentIsosurface.Color.W = float.Parse(dataGridView1[3, currP.X].Value.ToString()) / 100;
                 Surfaces.Add(currentIsosurface);
             }
         }
@@ -386,7 +378,7 @@ namespace GlazSegment
             delta.X = CurrentPoint.X - e.X;
             delta.Y = CurrentPoint.Y - e.Y;
 
-            updateMouse(delta);
+            //  updateMouse(delta);
         }
 
         void updateMouse(Point delta)
@@ -401,6 +393,7 @@ namespace GlazSegment
             a2 -= (float)Math.Atan2(cur_y, radius);
 
             a1 += (float)Math.Atan2(cur_x, radius);
+            Console.WriteLine("Rotate");
             CurrentPoint.X = (int)(3 * glControl1.Width / 2.0f);
             CurrentPoint.Y = (int)(3 * glControl1.Height / 2.0f);
 

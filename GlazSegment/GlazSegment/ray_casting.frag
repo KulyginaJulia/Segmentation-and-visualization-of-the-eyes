@@ -7,6 +7,8 @@
 
 in vec3 			EntryPoint;
 uniform sampler3D   VolumeTex;
+uniform sampler1D   Color;
+uniform sampler1D   iso_value;
 uniform float		X;
 uniform float		Y;
 uniform float       Z;
@@ -14,11 +16,11 @@ uniform vec3 campos;
 uniform vec3 view;
 uniform vec3 up;
 uniform vec3 side;
+uniform float CountOfIsosurfaces;
 uniform vec3 cell_size;
-uniform sampler1D color;
-uniform sampler1D iso_value;
 
-out vec4 FragColor;
+
+out vec4 FragmentColor;
 
 struct SCamera
 {    
@@ -71,9 +73,6 @@ bool IntersectBox ( SRay ray, out float start, out float final )
 {
 	vec3 minimum = vec3(0.0);
 	vec3 maximum = vec3(X*cell_size.x, Y*cell_size.y, Z*cell_size.z);
-	// maximum.x = clamp(maximum.x , 0.0, 1.0);
-	// maximum.y = clamp(maximum.y , 0.0, 1.0);
-	// maximum.z = clamp(maximum.z , 0.0, 1.0);
 	vec3 OMAX = ( minimum - ray.Origin ) / ray.Direction;
 	vec3 OMIN = ( maximum - ray.Origin ) / ray.Direction;
 	vec3 MAX = max ( OMAX, OMIN );
@@ -96,51 +95,79 @@ void main()
 {	
 	SCamera uCamera = initializeDefaultCamera(); 
     SRay ray = GenerateRay(uCamera);  
-	vec3 LightPosition = campos;//vec3(0.0, 200.0, -100.0);
+	vec3 LightPosition = campos;
 	float deltaDirLen = 1.0 / Z;
 	
 	vec3 norm;
 	vec4 colorAcum = vec4(0.0);
 	float isoValue =  texture(iso_value, 0).x;
-	vec4 isoColor = vec4(texture(color, 0).x, texture(color, 1).x, texture(color, 2).x, texture(color, 3).x);
+	vec4 isoColor = vec4(texture(Color, 0).x, texture(Color, 1).x, texture(Color, 2).x, texture(Color, 3).x);
 	float rightDensityValue = 0.0;
 	float final = 100.0;
 	float start;
 	float leftDensityValue = 0.0;
 	vec3 currentPoint = ray.Origin;
 	SRay currentRay = SRay(currentPoint, ray.Direction);
-	vec3 TextCurrentPoint = vec3(0.0);
+	vec3 TextureCurrentPoint = vec3(0.0);
 	
 	if(IntersectBox (currentRay, start, final))
 	{
-
 		for (float i = start; i < final; i = i + deltaDirLen)
 		{
 			currentPoint = ray.Origin + i * ray.Direction;
-			TextCurrentPoint = currentPoint / vec3(X*cell_size.x, Y*cell_size.y, Z*cell_size.z); 
-			leftDensityValue = texture(VolumeTex, TextCurrentPoint).x;
-			vec3 TextCurrentPoint_temp = vec3(currentPoint + deltaDirLen * ray.Direction) / vec3(X*cell_size.x, Y*cell_size.y, Z*cell_size.z); 
-			rightDensityValue = texture(VolumeTex, TextCurrentPoint_temp).x;
-			if (((leftDensityValue - isoValue) * (rightDensityValue - isoValue))  < 0)
-			{					
-				norm = normalize(IsoNormal(TextCurrentPoint));
-				colorAcum.xyz = Phong(uCamera.Position, TextCurrentPoint, norm, isoColor.xyz, LightPosition);				
-				colorAcum.w = leftDensityValue;
-				break;
-			}
-			
-			// currentPoint = ray.Origin + i * ray.Direction;
-			// leftDensityValue = texture(VolumeTex, currentPoint).x;
-			// rightDensityValue = texture(VolumeTex, currentPoint + deltaDirLen * ray.Direction).x;
-			// if (((leftDensityValue - isoValue) * (rightDensityValue - isoValue))  < 0)
-			// {					
-				// norm = normalize(IsoNormal(currentPoint));
-				// colorAcum.xyz = Phong(uCamera.Position, currentPoint, norm, isoColor.xyz, LightPosition);				
-				// colorAcum.w = leftDensityValue;
-				// break;
-			// }
+			TextureCurrentPoint = currentPoint / vec3(X*cell_size.x, Y*cell_size.y, Z*cell_size.z); 
+			leftDensityValue = texture(VolumeTex, TextureCurrentPoint).x;
+			vec3 TextureCurrentPoint_temp = vec3(currentPoint + deltaDirLen * ray.Direction) / vec3(X*cell_size.x, Y*cell_size.y, Z*cell_size.z); 
+			rightDensityValue = texture(VolumeTex, TextureCurrentPoint_temp).x;
+			int k = 0;				
 
+			for (int j = 0; j < CountOfIsosurfaces; j++){
+				isoValue = texture(iso_value, j).x;
+				
+				//isoColor = vec4(1.0);
+				
+				isoColor = vec4(texture(Color, k).x, texture(Color, k + 1).x, texture(Color, k + 2).x, texture(Color, k + 3).x);
+				k += 4;
+			// if (isoValue == 50){ 
+						// FragmentColor = vec4(0.0, 1.0, 0.0, 1.0); 
+						// return;
+					// }		
+				if (((leftDensityValue - isoValue) * (rightDensityValue - isoValue))  < 0)
+				{		
+					// if (isoValue == 50){ 
+						// FragmentColor = vec4(0.0, 1.0, 0.0, 1.0); 
+						// return;
+					// }				
+					norm = normalize(IsoNormal(TextureCurrentPoint));
+					colorAcum.xyz = Phong(uCamera.Position, TextureCurrentPoint, norm, isoColor.xyz, LightPosition);				
+					colorAcum.w += isoColor.w;
+					// if (CountOfIsosurfaces == 1.0){
+						// FragmentColor = colorAcum; 
+						// return;
+					// }
+
+				}
+				
+					continue;
+				// if (colorAcum.w >=  0.95)
+				// {
+					// FragmentColor = colorAcum;
+					// return;
+				// }
+				//	break;
+			}
+			if ((colorAcum.w >=  0.95) || (CountOfIsosurfaces == 1))
+					{
+						//FragmentColor = colorAcum;
+						//return;
+						break;
+					}
+			// if (colorAcum.w >=  0.95)
+			// {
+				// FragmentColor = colorAcum;
+				// return;
+			// }
 		}
-}
-	FragColor = colorAcum;
+	}
+	FragmentColor = colorAcum;
 }

@@ -1,5 +1,4 @@
-﻿using OpenTK;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -8,8 +7,6 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Drawing.Imaging;
 using OpenTK.Graphics.OpenGL;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 
 class Volume
 {

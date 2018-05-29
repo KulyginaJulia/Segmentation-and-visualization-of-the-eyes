@@ -26,7 +26,7 @@ namespace GlazSegment
         public double Dispers;
         public double G;
         private int norma;
-public Data() { }
+        public Data() { }
         public Data(string filename)
         {
             if (File.Exists(filename))

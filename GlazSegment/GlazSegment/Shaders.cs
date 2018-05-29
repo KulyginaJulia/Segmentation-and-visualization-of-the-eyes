@@ -53,7 +53,7 @@ namespace GlazSegment
             Console.WriteLine("InfoLog:");
             Console.WriteLine(GL.GetProgramInfoLog(BasicProgramID));
             dataLocation.Initial(BasicProgramID, flag_of_mask, surf);
-            dataLocation.Update(BasicProgramID, flag_of_mask, cam);
+            dataLocation.Update(BasicProgramID, flag_of_mask, cam, surf);
         }
     }
 }
